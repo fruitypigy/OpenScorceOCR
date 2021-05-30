@@ -1,6 +1,7 @@
 import PySimpleGUI as sg
 import cv2
 from SelectedArea import SelectedArea as sa 
+from Feed import Feed
 
 img = cv2.imread('square.png')
 
@@ -13,8 +14,9 @@ area_combo_list = []
 area_selected = 0
 list_selected = 'Area 0'
 
+
 listAdjust = lambda selected, event, values : area_list[selected].adjustRectangle(event, values)
-draw = lambda top_left, bottom_right, color : graph.draw_rectangle(top_left, bottom_right, line_color=color)
+draw = lambda top_left, bottom_right, color, size : graph.draw_rectangle(top_left, bottom_right, line_color=color, line_width=size)
 crop = lambda img, crop_coords : encode(img[crop_coords[0]:crop_coords[1], crop_coords[2]:crop_coords[3]])
 
 for combo_count in range(0, area_number):
@@ -40,36 +42,40 @@ def drawAll(event, values):
         if count == area_selected:
             top_left, bottom_right = listAdjust(count, event, values)
             color = 'red'
+            size = 4
         elif area_list[count].initiated:
             top_left, bottom_right = listAdjust(count, None, None)
-            color = 'black'
+            color = 'green'
+            size = 1
         else:
             break
 
         graph.delete_figure(area_list[count].rectangle)
-        area_list[count].rectangle = draw(top_left, bottom_right, color)
+        area_list[count].rectangle = draw(top_left, bottom_right, color, size)
 
 
 def encode(image):
     return cv2.imencode('.png', image)[1].tobytes()
 
-backround = graph.draw_image(data=encode(img), location=(0,0))
+feed = Feed('Tests\scoreboard.png')
+
+graph, backround = feed.drawFrame(graph)
+
 
 while True:
     
     event, values = window.read(timeout=0.1)
 
+
     # graph.delete_figure(backround)
-    # backround = graph.draw_image(data=encode(img), location=(0,0))
+    graph, backround = feed.drawFrame(graph)
     
     drawAll(event, values)
-    print(values)
 
     if event == None:
         break
     elif event == 'area_selector':
         list_selected = values['area_selector'] # type: str
-        print('Combo Sees: ' + str(list_selected))
         
         for selected_count in range(area_number, -1, -1):
             if list_selected.endswith(str(selected_count)):

@@ -13,6 +13,9 @@ area_combo_list = []
 area_selected = 0
 list_selected = 'Area 0'
 
+listAdjust = lambda selected, event, values : area_list[selected].adjustRectangle(event, values)
+draw = lambda top_left, bottom_right, color : graph.draw_rectangle(top_left, bottom_right, line_color=color)
+crop = lambda img, crop_coords : encode(img[crop_coords[0]:crop_coords[1], crop_coords[2]:crop_coords[3]])
 
 for combo_count in range(0, area_number):
     area_combo_list.append(str('Area ' + str(combo_count))) 
@@ -31,21 +34,24 @@ for area_count in range(0, area_number):
     area_list.append(sa(graph.DrawRectangle((-1,-1), (-1,-1))))
     area_list[area_count].adjustRectangle()    
 
+
+
 def drawAll(event, values):
 
-    for draw_count in range(0, area_number):
+    for count in range(0, area_number):
         # print(area_selected)
-        if draw_count == area_selected:
-            top_left, bottom_right = area_list[draw_count].adjustRectangle(event, values)
+        if count == area_selected:
+            top_left, bottom_right = listAdjust(count, event, values)
             color = 'red'
-        elif area_list[draw_count].initiated:
-            top_left, bottom_right = area_list[draw_count].adjustRectangle()
+        elif area_list[count].initiated:
+            top_left, bottom_right = listAdjust(count, None, None)
             color = 'black'
         else:
             break
 
-        graph.delete_figure(area_list[draw_count].rectangle)
-        area_list[draw_count].rectangle = (graph.draw_rectangle(top_left, bottom_right, line_color=color))
+        graph.delete_figure(area_list[count].rectangle)
+        # area_list[count].rectangle = (graph.draw_rectangle(top_left, bottom_right, line_color=color))
+        area_list[count].rectangle = draw(top_left, bottom_right, color)
 
 
 def encode(image):
@@ -77,8 +83,11 @@ while True:
 
     crop_coords = area_list[area_selected].getCrop()
 
-    cropped = img[crop_coords[0]:crop_coords[1], 
-                    crop_coords[2]:crop_coords[3]]
+    # cropped = img[crop_coords[0]:crop_coords[1], 
+    #                 crop_coords[2]:crop_coords[3]]
+    
+    cropped_encoded = crop(img, crop_coords)
 
-    cropped_encoded = encode(cropped)
+    # cropped_encoded = encode(cropped)
+
     window['cropped'].update(data=cropped_encoded)

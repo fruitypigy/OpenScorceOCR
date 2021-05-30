@@ -34,12 +34,9 @@ for area_count in range(0, area_number):
     area_list.append(sa(graph.DrawRectangle((-1,-1), (-1,-1))))
     area_list[area_count].adjustRectangle()    
 
-
-
 def drawAll(event, values):
 
     for count in range(0, area_number):
-        # print(area_selected)
         if count == area_selected:
             top_left, bottom_right = listAdjust(count, event, values)
             color = 'red'
@@ -50,7 +47,6 @@ def drawAll(event, values):
             break
 
         graph.delete_figure(area_list[count].rectangle)
-        # area_list[count].rectangle = (graph.draw_rectangle(top_left, bottom_right, line_color=color))
         area_list[count].rectangle = draw(top_left, bottom_right, color)
 
 
@@ -82,12 +78,8 @@ while True:
         
 
     crop_coords = area_list[area_selected].getCrop()
-
-    # cropped = img[crop_coords[0]:crop_coords[1], 
-    #                 crop_coords[2]:crop_coords[3]]
     
     cropped_encoded = crop(img, crop_coords)
 
-    # cropped_encoded = encode(cropped)
 
     window['cropped'].update(data=cropped_encoded)

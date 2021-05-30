@@ -11,7 +11,6 @@ class SelectedArea:
         self.initiated = False
 
     def adjustRectangle(self, event=None, values=None):
-        print(self.pos)
         self.initiated = True
         if event == 'graph':
             self.pos = values['graph']
@@ -43,7 +42,5 @@ class SelectedArea:
         for x in range(len(self.coords)):
             if self.coords[x-1] < 0:
                 self.coords[x-1] = 0
-        
-        print(self.coords)
 
         return self.coords

@@ -1,11 +1,11 @@
 class SelectedArea:
 
-    def __init__(self, rectangle, pos = (1, 1), dim = (5, 5)):
+    def __init__(self, rectangle, pos = (200, 200), dim = (5, 5)):
         self.dim = dim
         self.pos = pos
         self.rectangle = rectangle
-        self.length = 3
-        self.height = 5
+        self.length = 30
+        self.height = 50
         self.top_left = (0,1)
         self.bottom_right = (1,0)
         self.initiated = False

@@ -33,7 +33,7 @@ window = sg.Window('Resizeable Rectangle Test', layout, return_keyboard_events=T
 graph = window['graph'] # type: sg.Graph
 
 for area_count in range(0, area_number):
-    area_list.append(sa(graph.DrawRectangle((-1,-1), (-1,-1))))
+    area_list.append(sa(graph.draw_rectangle((-1,-1), (-1,-1))))
     area_list[area_count].adjustRectangle()    
 
 def drawAll(event, values):
@@ -50,26 +50,25 @@ def drawAll(event, values):
         else:
             break
 
-        graph.delete_figure(area_list[count].rectangle)
+        # graph.delete_figure(area_list[count].rectangle)
         area_list[count].rectangle = draw(top_left, bottom_right, color, size)
 
 
 def encode(image):
     return cv2.imencode('.png', image)[1].tobytes()
 
-feed = Feed('Tests\scoreboard.png')
+feed = Feed('square.png')
 
 graph, backround = feed.drawFrame(graph)
 
 
 while True:
     
+
     event, values = window.read(timeout=0.1)
 
-
-    # graph.delete_figure(backround)
+    graph.erase()
     graph, backround = feed.drawFrame(graph)
-    
     drawAll(event, values)
 
     if event == None:

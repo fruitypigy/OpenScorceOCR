@@ -68,6 +68,8 @@ print(cycle_time_start)
 
 while True:
     
+    graph.erase()
+
     gc.collect()
     if  cycles >= 10:
         cycles_per_second = int(cycles / (time.time() - cycle_time_start))
@@ -77,10 +79,7 @@ while True:
     img = cap.read()[1]
     encoded = cv2.imencode('.png', cap.read()[1])[1].tobytes()
     start_proccess = True
-    graph.delete_figure(rectangle)
-    graph.delete_figure(feed)
     feed = graph.draw_image(data=encoded, location=(0, 0))
-    graph.delete_figure(text)
     text = graph.draw_text((str(cycles_per_second) + ' Cycles/Second'), (70,30), color='white')
 
     if (startpoint != None and endpoint != None) and (startpoint != endpoint):
@@ -118,7 +117,6 @@ while True:
 
 
     if (start_proccess and (startpoint != None and endpoint != None) and (startpoint[0] != endpoint[0]) and (startpoint[1] != endpoint[1])):
-        
 
         # print(bool(startpoint == endpoint))
         x1, x2, y1, y2 = startpoint[0], endpoint[0], startpoint[1], endpoint[1]
@@ -153,14 +151,11 @@ while True:
         cursor_pos = values['graph']
 
         if not dragging:
-            graph.delete_figure(rectangle)
             dragging = True
             startpoint = cursor_pos
             endpoint = cursor_pos
         else:
             endpoint = cursor_pos
-            graph.delete_figure(rectangle)
-            
 
         # print('Cursor Position: cursor_pos)
         # print('Start Point: ', startpoint)

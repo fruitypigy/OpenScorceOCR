@@ -10,13 +10,13 @@ import gc
 
 
 
-file_event, file_values = sg.Window('Get filename example', [[sg.Text('Filename')], [sg.Input(), sg.FileBrowse()], [sg.OK(), sg.Cancel()] ]).read(close=True)
-img = cv2.imread(file_values[0]) # type: np.ndarray
-encoded = cv2.imencode('.png', img)[1].tobytes()
+# file_event, file_values = sg.Window('Get filename example', [[sg.Text('Filename')], [sg.Input(), sg.FileBrowse()], [sg.OK(), sg.Cancel()] ]).read(close=True)
+# img = cv2.imread(file_values[0]) # type: np.ndarray
+# encoded = cv2.imencode('.png', img)[1].tobytes()
 
-# cap = cv2.VideoCapture(0)
-# img = cap.read()[1]
-# encoded = cv2.imencode('.png', cap.read()[1])[1].tobytes()
+cap = cv2.VideoCapture(0)
+img = cap.read()[1]
+encoded = cv2.imencode('.png', cap.read()[1])[1].tobytes()
 
 
 
@@ -62,6 +62,7 @@ cycle_time_start = time.time()
 cycles_per_second = 0
 cycles = 0
 start_proccess = False
+text = None 
 
 print(cycle_time_start)
 
@@ -73,13 +74,14 @@ while True:
         cycle_time_start = time.time()
         cycles = 0
 
-    # img = cap.read()[1]
-    # encoded = cv2.imencode('.png', cap.read()[1])[1].tobytes()
+    img = cap.read()[1]
+    encoded = cv2.imencode('.png', cap.read()[1])[1].tobytes()
     start_proccess = True
-    
+    graph.delete_figure(rectangle)
     graph.delete_figure(feed)
     feed = graph.draw_image(data=encoded, location=(0, 0))
-    graph.draw_text((str(cycles_per_second) + ' Cycles/Second'), (70,30), color='white')
+    graph.delete_figure(text)
+    text = graph.draw_text((str(cycles_per_second) + ' Cycles/Second'), (70,30), color='white')
 
     if (startpoint != None and endpoint != None) and (startpoint != endpoint):
 
@@ -145,7 +147,7 @@ while True:
 
         processed_encoded = cv2.imencode('.png', proccessed)[1].tobytes()
         image_window['-PROCCESSED-'].update(data=processed_encoded)
-    
+       
     if event == 'graph':
 
         cursor_pos = values['graph']

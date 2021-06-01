@@ -35,7 +35,8 @@ class SelectedArea:
         return (self.top_left, self.bottom_right)
     
     def getCrop(self):
-
+        
+        #TODO return cropped area instead of coords
         self.coords = [self.bottom_right[1], self.top_left[1], 
                 self.top_left[0], self.bottom_right[0]] 
 

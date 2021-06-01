@@ -15,15 +15,15 @@ class SelectedViewer:
         self.test_img = self.encode(cv2.imread('PreviewTest.png'))
     def drawSelected(self, graph: sg.Graph, colums_rows, max_images):
 
-        draw_images = 0
+        drawn_images = 0
         for colum in range(0, colums_rows[0]):
             for row in range(0, colums_rows[1]):
-                if draw_images == max_images:
+                if drawn_images == max_images:
                     break
                 top_left = (10+row*70, 10+colum*130)
                 text_pos = (10+row*70, 125+colum*130)
                 graph.draw_text('Found Num', location=text_pos, text_location=TEXT_LOCATION_BOTTOM_LEFT)
                 graph.draw_image(data=self.test_img, location=(top_left)) 
-                draw_images += 1 
+                drawn_images += 1 
         
         return graph

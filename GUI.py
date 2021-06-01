@@ -4,6 +4,7 @@ from SelectedArea import SelectedArea as sa
 from Feed import Feed
 
 img = cv2.imread('square.png')
+feed = Feed('square.png')
 
 backround = None
 
@@ -42,19 +43,10 @@ def drawAll(event, values):
         elif area_list[count].initiated:
             area_list[count].adjustRectangle(graph)
 
-def encode(image):
-    return cv2.imencode('.png', image)[1].tobytes()
-
-feed = Feed('square.png')
-
-graph = feed.drawFrame(graph)
-
 
 while True:
     
-
     event, values = window.read(timeout=0.1)
-
 
     if event == None:
         break

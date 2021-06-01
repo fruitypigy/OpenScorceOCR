@@ -14,6 +14,8 @@ class SelectedArea:
         self.top_left = (0,1)
         self.bottom_right = (1,0)
         self.initiated = False
+        self.processed = None
+        self.guessed = -1
 
     def adjustRectangle(self, graph: sg.Graph, event=None, values=None, is_main=False):
         self.initiated = True
@@ -22,7 +24,7 @@ class SelectedArea:
             size = 4
         else:
             line_color = 'green'
-            size = 1
+            size = 2
 
         if event == 'graph':
             self.pos = values['graph']
@@ -48,9 +50,8 @@ class SelectedArea:
 
         return graph
 
-    def getCrop(self, img):
-        
-        #TODO return cropped area instead of coords
+    def getCrop(self, frame):
+
         self.coords = [self.bottom_right[1], self.top_left[1], 
                 self.top_left[0], self.bottom_right[0]] 
 
@@ -58,12 +59,18 @@ class SelectedArea:
             if self.coords[x-1] < 0:
                 self.coords[x-1] = 0
 
-        img = img[self.coords[0]:self.coords[1], self.coords[2]:self.coords[3]]
-        encoded = cv2.imencode('.png', img)[1].tobytes()
-        return encoded
-        # return self.coords
-    def processArea(self):
-        pass
-    
+        frame = frame[self.coords[0]:self.coords[1], self.coords[2]:self.coords[3]]
+        encoded = cv2.imencode('.png', frame)[1].tobytes()
+        return encoded, frame
+        
+    def processArea(self, frame, skip_digit=False):
+        cropped = self.getCrop(frame)[1]
+        self.processed = ip.process(cropped, v_max=40)
+        if not skip_digit:
+            self.guessed = getDigit(self.processed)
+        self.processed = ip.resize(self.processed, (60,100))
+        self.processed_encoded = cv2.imencode('.png', self.processed)[1].tobytes()
+        return self.processed_encoded, self.guessed
+        
     def getProcessed(self):
-        pass
+        return self.processed_encoded, self.guessed

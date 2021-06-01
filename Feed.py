@@ -27,5 +27,5 @@ class Feed:
             return frame
     
     def drawFrame(self, graph: sg.Graph):
-        self.backround = graph.draw_image(data=self.getFrame()[1], location=(0,0))
-        return graph, self.backround
+        graph.draw_image(data=self.getFrame()[1], location=(0,0))
+        return graph

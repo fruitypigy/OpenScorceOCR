@@ -1,3 +1,8 @@
+import cv2
+import ImageProcess as  ip
+import PySimpleGUI as sg
+from OpenCVMatch import getDigit
+
 class SelectedArea:
 
     def __init__(self, rectangle, pos = (200, 200), dim = (5, 5)):
@@ -10,8 +15,15 @@ class SelectedArea:
         self.bottom_right = (1,0)
         self.initiated = False
 
-    def adjustRectangle(self, event=None, values=None):
+    def adjustRectangle(self, graph: sg.Graph, event=None, values=None, is_main=False):
         self.initiated = True
+        if is_main:
+            line_color = 'red'
+            size = 4
+        else:
+            line_color = 'green'
+            size = 1
+
         if event == 'graph':
             self.pos = values['graph']
         elif event == ',':
@@ -32,9 +44,11 @@ class SelectedArea:
         self.top_left = (self.pos[0] - self.length, self.pos[1] + self.height)
         self.bottom_right = (self.pos[0] + self.length, self.pos[1] - self.height)
 
-        return (self.top_left, self.bottom_right)
-    
-    def getCrop(self):
+        graph.draw_rectangle(self.top_left, self.bottom_right, line_color=line_color, line_width=size)
+
+        return graph
+
+    def getCrop(self, img):
         
         #TODO return cropped area instead of coords
         self.coords = [self.bottom_right[1], self.top_left[1], 
@@ -44,4 +58,12 @@ class SelectedArea:
             if self.coords[x-1] < 0:
                 self.coords[x-1] = 0
 
-        return self.coords
+        img = img[self.coords[0]:self.coords[1], self.coords[2]:self.coords[3]]
+        encoded = cv2.imencode('.png', img)[1].tobytes()
+        return encoded
+        # return self.coords
+    def processArea(self):
+        pass
+    
+    def getProcessed(self):
+        pass

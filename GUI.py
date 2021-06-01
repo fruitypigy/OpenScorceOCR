@@ -15,9 +15,7 @@ area_selected = 0
 list_selected = 'Area 0'
 
 
-listAdjust = lambda selected, event, values : area_list[selected].adjustRectangle(event, values)
 draw = lambda top_left, bottom_right, color, size : graph.draw_rectangle(top_left, bottom_right, line_color=color, line_width=size)
-crop = lambda img, crop_coords : encode(img[crop_coords[0]:crop_coords[1], crop_coords[2]:crop_coords[3]])
 
 for combo_count in range(0, area_number):
     area_combo_list.append(str('Area ' + str(combo_count))) 
@@ -34,32 +32,22 @@ graph = window['graph'] # type: sg.Graph
 
 for area_count in range(0, area_number):
     area_list.append(sa(graph.draw_rectangle((-1,-1), (-1,-1))))
-    area_list[area_count].adjustRectangle()    
+    graph = area_list[area_count].adjustRectangle(graph)    
 
 def drawAll(event, values):
 
     for count in range(0, area_number):
         if count == area_selected:
-            top_left, bottom_right = listAdjust(count, event, values)
-            color = 'red'
-            size = 4
+            area_list[count].adjustRectangle(graph, event, values, True)
         elif area_list[count].initiated:
-            top_left, bottom_right = listAdjust(count, None, None)
-            color = 'green'
-            size = 1
-        else:
-            break
-
-        # graph.delete_figure(area_list[count].rectangle)
-        area_list[count].rectangle = draw(top_left, bottom_right, color, size)
-
+            area_list[count].adjustRectangle(graph)
 
 def encode(image):
     return cv2.imencode('.png', image)[1].tobytes()
 
 feed = Feed('square.png')
 
-graph, backround = feed.drawFrame(graph)
+graph = feed.drawFrame(graph)
 
 
 while True:
@@ -67,9 +55,6 @@ while True:
 
     event, values = window.read(timeout=0.1)
 
-    graph.erase()
-    graph, backround = feed.drawFrame(graph)
-    drawAll(event, values)
 
     if event == None:
         break
@@ -82,9 +67,7 @@ while True:
                 break
         
 
-    crop_coords = area_list[area_selected].getCrop()
-    
-    cropped_encoded = crop(img, crop_coords)
-
-
-    window['cropped'].update(data=cropped_encoded)
+    window['cropped'].update(data=area_list[area_selected].getCrop(img))
+    graph.erase()
+    graph = feed.drawFrame(graph)
+    drawAll(event, values)

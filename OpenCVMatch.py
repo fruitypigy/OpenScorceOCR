@@ -35,7 +35,6 @@ def checkSeg(img, seg,  min_percentage=2.5, max_percentage=10):
 	combined = (cv2.addWeighted(check, 0.4, img, 0.1, 0))
 
 	combined_hsv = cv2.cvtColor(combined, cv2.COLOR_BGR2HSV)
-	cv2.imwrite('masked.jpg', combined_hsv)
 
 	sensitivity = 0
 	lower_bound = np.array([0 - sensitivity, 0 - sensitivity, 0 - sensitivity]) 

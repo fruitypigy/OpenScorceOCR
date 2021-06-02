@@ -10,7 +10,7 @@ feed = Feed(0, .75)
 
 backround = None
 
-area_number = 5
+area_number = 8
 area_list = [] # type: list[sa]
 area_combo_list = []
 
@@ -74,14 +74,12 @@ while True:
     
     if event == 'graph':
         area_list[area_selected].processArea(feed.getFrame()[0], skip_digit=True)
-        cycles = 10
-    elif cycles >= 10:    
-        for area_count in range(len(area_list)):
-            area_list[area_count].processArea(feed.getFrame()[0])
-            cycles = 0
-    else:
+        cycles = 1
+    elif cycles <= area_count+1:    
+        area_list[cycles-1].processArea(feed.getFrame()[0])
         cycles += 1
-    
+    else:
+        cycles = 1
     viewer_graph = viewer.drawSelected(viewer_graph, area_list, (3,3), area_number)
     window['cropped'].update(data=area_list[area_selected].getCrop(feed.getFrame()[0])[0])
     graph.erase()

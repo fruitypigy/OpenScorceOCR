@@ -28,10 +28,12 @@ graph_element = sg.Graph((400, 400), (0, 400), (400, 0), pad=(10,10),
                     enable_events=True, key='graph', drag_submits=True)
 viewer_graph_element = sg.Graph((400, 400), (0, 400), (400, 0), pad=(10,10), 
                     enable_events=True, key='viewer', drag_submits=True)
+selector_elemtent = sg.Combo(values=area_combo_list, size=(10, 5), 
+                    default_value = 'Area 0', readonly=True, enable_events=True, key='area_selector')
+text_element = sg.Text('1, 2, 3, 4, 5, 6, 7, 8, 9, 10', (60, 2), 
+                    key='digits', text_color='White', background_color='grey')
 
-selector_elemtent = sg.Combo(values=area_combo_list, size=(10, 5), default_value = 'Area 0', readonly=True, enable_events=True, key='area_selector')
-
-layout = [[selector_elemtent],[graph_element, sg.Image(key='cropped'), viewer_graph_element]]
+layout = [[selector_elemtent],[graph_element, sg.Image(key='cropped'), viewer_graph_element], [text_element]]
 
 window = sg.Window('Main', layout, return_keyboard_events=True, finalize=True)
 
@@ -49,6 +51,12 @@ def drawAll(event, values):
             area_list[count].adjustRectangle(graph, event, values, True)
         elif area_list[count].initiated:
             area_list[count].adjustRectangle(graph)
+
+def getDigits(areas: list[sa]):
+    digits = [] # type: list[int]
+    for count in range(len(areas)):
+        digits.append(areas[count].getDigit())
+    return digits
 
 for x in range(len(area_list)):
     area_list[x].processArea(feed.getFrame()[0])
@@ -82,6 +90,7 @@ while True:
         cycles = 1
     viewer_graph = viewer.drawSelected(viewer_graph, area_list, (3,3), area_number)
     window['cropped'].update(data=area_list[area_selected].getCrop(feed.getFrame()[0])[0])
+    window['digits'].update((getDigits(area_list)))
     graph.erase()
     graph = feed.drawFrame(graph)
     drawAll(event, values)

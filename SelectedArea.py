@@ -73,4 +73,7 @@ class SelectedArea:
         return self.processed_encoded, self.guessed
         
     def getProcessed(self):
-        return self.processed_encoded, self.guessed
+        return self.processed_encoded
+        
+    def getDigit(self):
+        return self.guessed

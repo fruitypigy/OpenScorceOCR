@@ -23,8 +23,8 @@ class SelectedViewer:
                     break
                 top_left = (10+row*70, 10+colum*130)
                 text_pos = (10+row*70, 125+colum*130)
-                graph.draw_text(areas[drawn_images].getProcessed()[1], location=text_pos, text_location=TEXT_LOCATION_BOTTOM_LEFT)
-                graph.draw_image(data=areas[drawn_images].getProcessed()[0], location=(top_left)) 
+                graph.draw_text(areas[drawn_images].getDigit(), location=text_pos, text_location=TEXT_LOCATION_BOTTOM_LEFT)
+                graph.draw_image(data=areas[drawn_images].getProcessed(), location=(top_left)) 
                 drawn_images += 1 
         
         return graph

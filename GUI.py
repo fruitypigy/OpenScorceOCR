@@ -5,7 +5,8 @@ from SelectedArea import SelectedArea as sa
 from Feed import Feed
 
 
-feed = Feed('Tests\scoreboard.png')
+# feed = Feed('Tests\scoreboard.png')
+feed = Feed(0, .75)
 
 backround = None
 

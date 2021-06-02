@@ -1,12 +1,15 @@
 from SelectedViewer import SelectedViewer as sv
 import PySimpleGUI as sg
-import cv2
+import cv2  
 from SelectedArea import SelectedArea as sa 
 from Feed import Feed
+import time
+from Setup import setup
 
+feed = Feed('Tests\scoreboard.png')
+# feed = Feed(0)
 
-# feed = Feed('Tests\scoreboard.png')
-feed = Feed(0, .75)
+feed.config(200, 400, 200, 400)
 
 backround = None
 
@@ -28,12 +31,16 @@ graph_element = sg.Graph((400, 400), (0, 400), (400, 0), pad=(10,10),
                     enable_events=True, key='graph', drag_submits=True)
 viewer_graph_element = sg.Graph((400, 400), (0, 400), (400, 0), pad=(10,10), 
                     enable_events=True, key='viewer', drag_submits=True)
-selector_elemtent = sg.Combo(values=area_combo_list, size=(10, 5), 
-                    default_value = 'Area 0', readonly=True, enable_events=True, key='area_selector')
+selector_element = sg.Listbox(values=area_combo_list, size=(10, 12), 
+                    default_values = 'Area 0', enable_events=True, key='area_selector')
 text_element = sg.Text('1, 2, 3, 4, 5, 6, 7, 8, 9, 10', (60, 2), 
                     key='digits', text_color='White', background_color='grey')
 
-layout = [[selector_elemtent],[graph_element, sg.Image(key='cropped'), viewer_graph_element], [text_element]]
+selector_col = [[selector_element], [sg.Image(key='cropped')]]
+
+layout = [[sg.Column(selector_col, vertical_alignment='top'), graph_element, viewer_graph_element], [text_element, sg.Button('Quit')]]
+
+feed = setup(feed)
 
 window = sg.Window('Main', layout, return_keyboard_events=True, finalize=True)
 
@@ -70,10 +77,10 @@ while True:
     
     event, values = window.read(timeout=0.1)
 
-    if event == None:
+    if event == None or event == 'Quit':
         break
     elif event == 'area_selector':
-        list_selected = values['area_selector'] # type: str
+        list_selected = values['area_selector'][0] # type: str
         
         for selected_count in range(area_number, -1, -1):
             if list_selected.endswith(str(selected_count)):
@@ -81,7 +88,8 @@ while True:
                 break
     
     if event == 'graph':
-        area_list[area_selected].processArea(feed.getFrame()[0], skip_digit=True)
+        encoded, guessed = area_list[area_selected].processArea(feed.getFrame()[0], skip_digit=True)
+        window['cropped'].update(data=encoded)
         cycles = 1
     elif cycles <= area_count+1:    
         area_list[cycles-1].processArea(feed.getFrame()[0])
@@ -89,7 +97,7 @@ while True:
     else:
         cycles = 1
     viewer_graph = viewer.drawSelected(viewer_graph, area_list, (3,3), area_number)
-    window['cropped'].update(data=area_list[area_selected].getCrop(feed.getFrame()[0])[0])
+    window['cropped'].update(data=area_list[area_selected].getPreview())
     window['digits'].update((getDigits(area_list)))
     graph.erase()
     graph = feed.drawFrame(graph)

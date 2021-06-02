@@ -64,16 +64,22 @@ class SelectedArea:
         return encoded, frame
         
     def processArea(self, frame, skip_digit=False):
-        cropped = self.getCrop(frame)[1]
-        self.processed = ip.process(cropped, v_max=40)
-        if not skip_digit:
-            self.guessed = getDigit(self.processed)
+        self.cropped = self.getCrop(frame)[1]
+        self.processed = ip.hsvProcess(self.cropped, v_min=255)
         self.processed = ip.resize(self.processed, (60,100))
+
+        if not skip_digit:
+            self.guessed = getDigit(self.processed, max_percentage=6.5)
         self.processed_encoded = cv2.imencode('.png', self.processed)[1].tobytes()
         return self.processed_encoded, self.guessed
         
     def getProcessed(self):
         return self.processed_encoded
+
+    def getPreview(self):
+        self.processed_preview = ip.resize(self.processed, (90,150))
+        self.encoded_preview = cv2.imencode('.png', self.processed_preview)[1].tobytes()
+        return self.encoded_preview
         
     def getDigit(self):
         return self.guessed

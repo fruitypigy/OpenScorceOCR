@@ -35,6 +35,11 @@ def resize(img, dim=(279,469)):
 
     return resized
 
+def hsvProcess(img, h_min=0, h_max=255, s_min=0, s_max=255, v_min=0, v_max=255):
+    mask_vals = [h_min, h_max, s_min, s_max, v_min, v_max]
+    masked = mask(img, mask_vals)
+    return cv2.merge((masked, masked, masked))
+    
 def process(img, h_min=0, h_max=255, s_min=0, s_max=255, v_min=0, v_max=255, scale=100, dim=(279,469), angle=0):
 
     # print('Processing with v_max: ' + str(v_max) + ' scale: ' + str(scale))
@@ -45,7 +50,7 @@ def process(img, h_min=0, h_max=255, s_min=0, s_max=255, v_min=0, v_max=255, sca
     cropped = crop(rotated, scale*0.01)
     resized = resize(cropped, dim)
     # blurred = cv2.bilateralFilter(resized, 20, 150, 150)
-    
+
     merged = cv2.merge((resized, resized, resized))
 
     # merged = cv2.merge((blurred, blurred, blurred))

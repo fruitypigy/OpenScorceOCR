@@ -37,7 +37,7 @@ def resize(img, dim=(279,469)):
 
 def process(img, h_min=0, h_max=255, s_min=0, s_max=255, v_min=0, v_max=255, scale=100, dim=(279,469), angle=0):
 
-    print('Processing with v_max: ' + str(v_max) + ' scale: ' + str(scale))
+    # print('Processing with v_max: ' + str(v_max) + ' scale: ' + str(scale))
     mask_vals = [h_min, h_max, s_min, s_max, v_min, v_max]
     
     masked = mask(img, mask_vals)

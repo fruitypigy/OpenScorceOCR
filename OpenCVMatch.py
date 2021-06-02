@@ -28,7 +28,7 @@ nine = [True, True, False, True, True, True, True]
 numbers = [zero,one,two,three,four,five,six,seven,eight,nine]
 
 def checkSeg(img, seg,  min_percentage=2.5, max_percentage=10):
-	print('Checking ' + segmentnames[seg])
+	# print('Checking ' + segmentnames[seg])
 
 	check = segments[seg]
 
@@ -45,7 +45,7 @@ def checkSeg(img, seg,  min_percentage=2.5, max_percentage=10):
 
 
 	percentage = calcSeg(msk)
-	print("Percentage = " + str(percentage) + '\n')
+	# print("Percentage = " + str(percentage) + '\n')
 	return (percentage > min_percentage and percentage < max_percentage)
 
 
@@ -69,10 +69,10 @@ def getDigit(img, min_percentage=2.5, max_percentage=10):
 	
 	for x in range(10):
 		if digit == numbers[x]:
-			print("Found " + str(x) + ' with min %: ' + str(min_percentage) + ' max % :' + str(max_percentage))
+			# print("Found " + str(x) + ' with min %: ' + str(min_percentage) + ' max % :' + str(max_percentage))
 			return x
 		x += 1
-	print("Failed to Find Digit" + ' with min %: ' + str(min_percentage) + ' max % :' + str(max_percentage))
+	# print("Failed to Find Digit" + ' with min %: ' + str(min_percentage) + ' max % :' + str(max_percentage))
 	return -1
 
 # img = cv2.imread('PercentageMatch\Tests\Full.jpg')

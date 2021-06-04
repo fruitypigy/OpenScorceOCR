@@ -29,7 +29,7 @@ def rotate(img, angle):
 	return cv2.warpAffine(img, M, (w, h))
 
 
-def resize(img, dim=(279,469)):
+def resize(img, dim=(60, 100)):
     dim = dim
     resized = cv2.resize(img, dim)
 
@@ -40,7 +40,7 @@ def hsvProcess(img, h_min=0, h_max=255, s_min=0, s_max=255, v_min=0, v_max=255):
     masked = mask(img, mask_vals)
     return cv2.merge((masked, masked, masked))
     
-def process(img, h_min=0, h_max=255, s_min=0, s_max=255, v_min=0, v_max=255, scale=100, dim=(279,469), angle=0):
+def process(img, h_min=0, h_max=255, s_min=0, s_max=255, v_min=0, v_max=255, scale=100, dim=(60,100), angle=0):
 
     # print('Processing with v_max: ' + str(v_max) + ' scale: ' + str(scale))
     mask_vals = [h_min, h_max, s_min, s_max, v_min, v_max]

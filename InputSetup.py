@@ -37,6 +37,3 @@ def inputSetup():
             return feed
         elif feed:
             window['preview'].update(data=feed.getFrame(True)[1])
-        
-inputSetup()
-print('Fin')

@@ -1,5 +1,3 @@
-from sys import version
-from numpy import heaviside
 from ImageProcess import hsvProcess, resize
 import PySimpleGUI as sg
 from PySimpleGUI.PySimpleGUI import Window

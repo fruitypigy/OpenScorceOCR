@@ -1,4 +1,3 @@
-from inspect import FullArgSpec
 import cv2
 import ImageProcess as  ip
 import PySimpleGUI as sg

@@ -4,7 +4,7 @@ from SelectedArea import SelectedArea as sa
 
 class SelectedViewer:
     
-    def __init__(self, list_size=1, area_dim=(60, 100), spacing=5):
+    def __init__(self, area_dim=(60, 100), spacing=5):
         self.area_dim = area_dim
         self.spacing = spacing
     

@@ -1,7 +1,5 @@
 import cv2
-import OpenCVMatch
 import numpy as np
-import ImageProcess
 
 def crop(img, scale):
     center_x, center_y = img.shape[1] / 2, img.shape[0] / 2

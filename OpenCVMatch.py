@@ -1,7 +1,5 @@
 import cv2
 import numpy as np
-import array
-import time
 
 SegBM = cv2.imread('Segments\SegBM.jpg')
 SegBR = cv2.imread('Segments\SegBR.jpg')

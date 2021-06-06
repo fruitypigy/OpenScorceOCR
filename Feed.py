@@ -1,7 +1,5 @@
-from typing import Sized
 import cv2
 import PySimpleGUI as sg
-from numpy import select
 from ImageProcess import resize, process, rotate, hsvProcess
 
 class Feed:

@@ -6,6 +6,8 @@ from Feed import Feed
 
 def inputSetup():
     sg.Spin(('None', '2'))
+
+    # TODO Fix crash on close with out selecting image
     browse_element = sg.Column([[sg.Text('Image Input')], 
                                 [sg.FileBrowse(target='input', file_types=(('JPG', '.jpg'), ('PNG', '.png')))]])
 
@@ -34,6 +36,11 @@ def inputSetup():
                 window['input'].update(values['cam_select'])
                 feed = Feed(values['cam_select'])
         elif event == 'OK':
+            window.close()
+            feed = Feed(feed.feed_input)
             return feed
         elif feed:
             window['preview'].update(data=feed.getFrame(True)[1])
+
+if __name__ == '__main__':
+    inputSetup()

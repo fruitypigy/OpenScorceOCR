@@ -31,7 +31,7 @@ def rotate(img, angle):
 
 def resize(img, dim=(60, 100)):
     dim = dim
-    resized = cv2.resize(img, dim)
+    resized = cv2.resize(img, (int(dim[0]), int(dim[1])))
 
     return resized
 

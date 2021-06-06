@@ -5,7 +5,7 @@ from OpenCVMatch import getDigit
 
 class SelectedArea:
 
-    def __init__(self, rectangle, pos = (200, 200), dim = (5, 5)):
+    def __init__(self, rectangle, pos = (30, 50), dim = (5, 5)):
         self.dim = dim
         self.pos = pos
         self.rectangle = rectangle

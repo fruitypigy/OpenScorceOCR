@@ -28,18 +28,28 @@ class SelectedArea:
 
         if event == 'graph':
             self.pos = values['graph']
-        elif event == ',':
+        elif event == 'a':
             self.pos = (self.pos[0] - 1, self.pos[1])
-        elif event == ';':
+        elif event == 'w':
             self.pos = (self.pos[0], self.pos[1] - 1)
-        elif event == '/':
+        elif event == 'd':
             self.pos = (self.pos[0] + 1, self.pos[1])
-        elif event == '.':
+        elif event == 's':
             self.pos = (self.pos[0], self.pos[1] + 1)
-        elif event == 'MouseWheel:Up' and self.length < 120: 
+        elif event == 'A':
+            self.pos = (self.pos[0] - 4, self.pos[1])
+        elif event == 'W':
+            self.pos = (self.pos[0], self.pos[1] - 4)
+        elif event == 'D':
+            self.pos = (self.pos[0] + 4, self.pos[1])
+        elif event == 'S':
+            self.pos = (self.pos[0], self.pos[1] + 4)
+        elif ((event == 'MouseWheel:Up' or event == 'q' or event == 'Q') 
+                and self.length < 120): 
             self.length += 3
             self.height += 5
-        elif event == 'MouseWheel:Down' and self.length > 3:
+        elif ((event == 'MouseWheel:Down' or event == 'e' or event == 'E') 
+                and self.length > 3):
             self.length -= 3
             self.height -= 5
         

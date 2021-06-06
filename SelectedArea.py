@@ -46,11 +46,11 @@ class SelectedArea:
             self.pos = (self.pos[0] + 4, self.pos[1])
         elif event == 'S':
             self.pos = (self.pos[0], self.pos[1] + 4)
-        elif ((event == 'MouseWheel:Up' or event == 'q' or event == 'Q') 
+        elif ((event == 'MouseWheel:Up' or event == 'q' or event == 'Q' or event == ']') 
                 and self.length < 120): 
             self.length += 3
             self.height += 5
-        elif ((event == 'MouseWheel:Down' or event == 'e' or event == 'E') 
+        elif ((event == 'MouseWheel:Down' or event == 'e' or event == 'E' or event == '[') 
                 and self.length > 3):
             self.length -= 3
             self.height -= 5

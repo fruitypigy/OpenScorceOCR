@@ -1,3 +1,4 @@
+from inspect import FullArgSpec
 import cv2
 import ImageProcess as  ip
 import PySimpleGUI as sg
@@ -16,6 +17,7 @@ class SelectedArea:
         self.initiated = False
         self.processed = None
         self.guessed = -1
+        self.update = False
 
     def adjustRectangle(self, graph: sg.Graph, event=None, values=None, is_main=False):
         self.initiated = True
@@ -81,6 +83,7 @@ class SelectedArea:
         if not skip_digit:
             self.guessed = getDigit(self.processed, max_percentage=6.5)
         self.processed_encoded = cv2.imencode('.png', self.processed)[1].tobytes()
+        self.update = not self.update
         return self.processed_encoded, self.guessed
         
     def getProcessed(self):
@@ -93,4 +96,4 @@ class SelectedArea:
         return self.encoded_preview
         
     def getDigit(self):
-        return self.guessed
+        return self.guessed, self.update

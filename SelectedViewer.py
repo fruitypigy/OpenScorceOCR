@@ -18,7 +18,11 @@ class SelectedViewer:
                     break
                 top_left = (10+row*70, 10+colum*130)
                 text_pos = (10+row*70, 125+colum*130)
-                graph.draw_text(areas[drawn_images].getDigit(), location=text_pos, text_location=TEXT_LOCATION_BOTTOM_LEFT)
+                digit, update = areas[drawn_images].getDigit()
+                if update:
+                    graph.draw_text(f'{digit} [X]', location=text_pos, text_location=TEXT_LOCATION_BOTTOM_LEFT)
+                else:
+                    graph.draw_text(f'{digit}', location=text_pos, text_location=TEXT_LOCATION_BOTTOM_LEFT)
                 graph.draw_image(data=areas[drawn_images].getProcessed(), location=(top_left)) 
                 drawn_images += 1 
         

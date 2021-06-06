@@ -34,7 +34,7 @@ def main():
 
     layout = [[sg.Column(selector_col, vertical_alignment='top'), graph_element, viewer_graph_element], [text_element, sg.Button('Quit')]]
 
-    window = sg.Window('Main', layout, return_keyboard_events=True, finalize=True)
+    window = sg.Window('OpenScorce', layout, return_keyboard_events=True, finalize=True)
 
     graph = window['graph'] # type: sg.Graph
     viewer_graph = window['viewer'] # type: sg.Graph

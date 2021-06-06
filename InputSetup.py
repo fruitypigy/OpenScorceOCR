@@ -1,7 +1,6 @@
 from tkinter.constants import DISABLED
 import PySimpleGUI as sg
 from PySimpleGUI.PySimpleGUI import HorizontalSeparator
-import cv2
 from Feed import Feed
 
 def inputSetup():
@@ -14,11 +13,11 @@ def inputSetup():
     camera_select_element = sg.Column(([sg.Text('Camera Input')], 
                             [sg.Spin((0, 1, 2, 3), 'None', size=(6, 1), key='cam_select', enable_events=True)]))
 
-    preview_element = sg.Image('square.png', key='preview')
+    preview_element = sg.Image(background_color='grey', size=(400, 400), key='preview')
 
     selected_element = sg.Input(key='input', size=(20, 1), readonly=True, enable_events=True)
 
-    window = sg.Window('Test', [[preview_element], [browse_element, camera_select_element], [HorizontalSeparator()], [selected_element, sg.OK(disabled=True, key='OK'), sg.Quit()]])
+    window = sg.Window('Setup', [[preview_element], [browse_element, camera_select_element], [HorizontalSeparator()], [selected_element, sg.OK(disabled=True, key='OK'), sg.Quit()]])
 
     feed = None
 

@@ -51,7 +51,7 @@ class SelectedArea:
         return graph
 
     def getCrop(self, frame):
-
+        # TODO Fix crash when selecting area outside of graph
         self.coords = [self.bottom_right[1], self.top_left[1], 
                 self.top_left[0], self.bottom_right[0]] 
 
@@ -77,6 +77,7 @@ class SelectedArea:
         return self.processed_encoded
 
     def getPreview(self):
+        # TODO overlay segments on preview to make adjustments easier
         self.processed_preview = ip.resize(self.processed, (90,150))
         self.encoded_preview = cv2.imencode('.png', self.processed_preview)[1].tobytes()
         return self.encoded_preview

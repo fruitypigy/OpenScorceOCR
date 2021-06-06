@@ -20,11 +20,8 @@ def mask(img, mask_vals):
     return cv2.inRange(combined_hsv, lower_bound, upper_bound)
 
 def rotate(img, angle):
-    # grab the dimensions of the image and calculate the center of the
-	# image
 	(h, w) = img.shape[:2]
 	(cX, cY) = (w // 2, h // 2)
-	# rotate our image by 45 degrees around the center of the image
 	M = cv2.getRotationMatrix2D((cX, cY), angle, 1.0)
 	return cv2.warpAffine(img, M, (w, h))
 
@@ -41,7 +38,6 @@ def hsvProcess(img, h_min=0, h_max=255, s_min=0, s_max=255, v_min=0, v_max=255):
     return cv2.merge((masked, masked, masked))
     
 def process(img, h_min=0, h_max=255, s_min=0, s_max=255, v_min=0, v_max=255, scale=100, dim=(60,100), angle=0):
-
     # print('Processing with v_max: ' + str(v_max) + ' scale: ' + str(scale))
     mask_vals = [h_min, h_max, s_min, s_max, v_min, v_max]
     
@@ -49,13 +45,7 @@ def process(img, h_min=0, h_max=255, s_min=0, s_max=255, v_min=0, v_max=255, sca
     rotated = rotate(masked, angle)
     cropped = crop(rotated, scale*0.01)
     resized = resize(cropped, dim)
-    # blurred = cv2.bilateralFilter(resized, 20, 150, 150)
 
     merged = cv2.merge((resized, resized, resized))
-
-    # merged = cv2.merge((blurred, blurred, blurred))
-    # cv2.imshow('Blurred', blurred)
-    # cv2.imshow('Resized', resized)
-    # cv2.waitKey()
 
     return merged

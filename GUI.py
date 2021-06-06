@@ -1,9 +1,6 @@
-from SelectedViewer import SelectedViewer as sv
 import PySimpleGUI as sg
-import cv2  
 from SelectedArea import SelectedArea as sa 
-from Feed import Feed
-import time
+from SelectedViewer import SelectedViewer as sv
 from InputSetup import inputSetup
 from FilterSetup import filterSetup
 
@@ -13,20 +10,6 @@ def main():
     feed.resize_for_crop = True
     feed.getFrame()
 
-    # print(feed.crop_width, feed.crop_height)
-
-    # print(feed.h_vals, feed.s_vals, feed.v_vals)
-
-    # feed = Feed('Tests\RealTwo.jpg')
-    # feed = Feed(0)
-
-    # feed.s_vals = (0, 40)
-
-    # feed.config(200, 400, 200, 400)
-
-    backround = None
-
-    # area_number = 8
     area_list = [] # type: list[sa]
     area_combo_list = []
 
@@ -34,8 +17,6 @@ def main():
     list_selected = 'Area 0'
 
     viewer = sv()
-
-    draw = lambda top_left, bottom_right, color, size : graph.draw_rectangle(top_left, bottom_right, line_color=color, line_width=size)
 
     for combo_count in range(0, area_number):
         area_combo_list.append(str('Area ' + str(combo_count))) 
@@ -52,8 +33,6 @@ def main():
     selector_col = [[selector_element], [sg.Image(key='cropped')]]
 
     layout = [[sg.Column(selector_col, vertical_alignment='top'), graph_element, viewer_graph_element], [text_element, sg.Button('Quit')]]
-
-    # feed = setup(feed)
 
     window = sg.Window('Main', layout, return_keyboard_events=True, finalize=True)
 
@@ -101,6 +80,8 @@ def main():
                     area_selected = selected_count
                     break
         
+        # TODO Allow right click to add segment
+
         if event == 'graph':
             encoded, guessed = area_list[area_selected].processArea(feed.getFrame()[0], skip_digit=True)
             window['cropped'].update(data=encoded)

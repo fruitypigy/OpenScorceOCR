@@ -40,7 +40,6 @@ def checkSeg(img, seg,  min_percentage=2.5, max_percentage=10):
 	lower_bound = np.array([0 - sensitivity, 0 - sensitivity, 0 - sensitivity]) 
 	upper_bound = np.array([1 + sensitivity, 1 + sensitivity, 1 + sensitivity]) 
 
-	#create mask 
 	msk = cv2.inRange(combined_hsv, lower_bound, upper_bound)
 
 
@@ -62,9 +61,6 @@ def calcSeg(msk):
 
 def getDigit(img, min_percentage=2.5, max_percentage=10):
 	
-	# combined = (cv2.addWeighted(cv2.imread('PercentageMatch\TestNumbers\TNum8.jpg'), 0.4, img, 0.1, 0))
-	# cv2.imwrite('process.jpg', combined)
-	
 	digit = [checkSeg(img,0,min_percentage,max_percentage),checkSeg(img,1,min_percentage,max_percentage),checkSeg(img,2,min_percentage,max_percentage),checkSeg(img,3,min_percentage,max_percentage),checkSeg(img,4,min_percentage,max_percentage),checkSeg(img,5,min_percentage,max_percentage),checkSeg(img,6,min_percentage,max_percentage)]
 	
 	for x in range(10):
@@ -74,6 +70,3 @@ def getDigit(img, min_percentage=2.5, max_percentage=10):
 		x += 1
 	# print("Failed to Find Digit" + ' with min %: ' + str(min_percentage) + ' max % :' + str(max_percentage))
 	return -1
-
-# img = cv2.imread('PercentageMatch\Tests\Full.jpg')
-# print("Found " + str(getDigit(img)) + '\n')

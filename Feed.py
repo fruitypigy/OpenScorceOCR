@@ -6,18 +6,16 @@ from ImageProcess import resize, process, rotate, hsvProcess
 
 class Feed:
 
-    def __init__(self, feed_input, desired_height=600, desired_width=600, resize_crop=True):
+    def __init__(self, feed_input, desired_height=600, desired_width=600):
         self.resize_for_crop = False
-        self.rot = 0
         self.crop_scale = 1
+        self.rot = 0
         self.h_vals = (0, 255)
         self.s_vals = (0, 255)
         self.v_vals = (0, 255)
         self.configInput(feed_input)
-        self.init = False
         self.configCrop(0, self.read().shape[0], 0, self.read().shape[1])
         self.configScale(desired_height, desired_width)
-        self.init = True
         self.configRotHSV()
 
 
@@ -32,25 +30,24 @@ class Feed:
         self.v_vals = v_vals
 
     def configScale(self, desired_height = 600, desired_width = 600):
-        # self.height = self.getFrame()[0].shape[0]
-        # self.width = self.getFrame()[0].shape[1]
         self.height = self.read().shape[0]
         self.width = self.read().shape[1]
 
         self.scale = 1
-        # resized = False
-    
+        
         print(f'Input Resolution: {self.width, self.height}')
-        print(f'Max Width: {desired_width}, Max Height: {desired_height}')
+        print(f'Desired Width: {desired_width}, Desired Height: {desired_height}')
 
         while self.height*self.scale > desired_height or self.width*self.scale > desired_width:
             print(f'Resizing: {int(self.width * self.scale), int(self.height * self.scale)}')
             self.scale -= 0.01
         
         # TODO add scale up toggle
-        while self.scale == 1 and (self.height*self.scale < desired_height or self.width*self.scale < desired_width):
-            print(f'Resizing: {int(self.width * self.scale), int(self.height * self.scale)}')
-            self.scale += 0.01
+        # TODO Fix scale up
+        if self.scale == 1:
+            while self.height*self.scale < desired_height and self.width*self.scale < desired_width:
+                print(f'Resizing: {int(self.width * self.scale), int(self.height * self.scale)}')
+                self.scale += 0.01
        
         self.height = int(self.height * self.scale)
         self.width = int(self.width * self.scale)
@@ -74,11 +71,6 @@ class Feed:
     def getFrame(self, raw=False):
         read = self.read()
 
-        # if self.init:
-        #     read = self.crop(read)
-        #     dims = int(self.width), int(self.height)
-        #     read = resize(read, dims)
-        # else:
         self.height = read.shape[0]
         self.width = read.shape[1]
 
@@ -86,7 +78,7 @@ class Feed:
         read = resize(read, (dims[0]*self.scale, dims[1]*self.scale))
         read = self.crop(read)
         read = rotate(read, self.rot)
-        # print(read.shape)
+      
         if self.resize_for_crop:
             while read.shape[0]*self.crop_scale < 600 and read.shape[1]*self.crop_scale < 800:
                 

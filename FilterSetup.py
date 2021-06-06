@@ -17,13 +17,15 @@ def filterSetup(feed: Feed):
                     sg.Text('Rotation'), sg.Slider((0,360), 0, orientation='horizontal', key='ROT')],[
                         sg.Checkbox('Apply HSV Filter', key='apply_hsv')]
 
+    spin_element = sg.Text('Number of Segments'), sg.Spin([i for i in range(1,19)], 1, size=(3,2), key=('segment_number'))
+
     input_graph_element = sg.Graph(canvas_size=(feed.width, feed.height), graph_bottom_left=(0, feed.height), 
                                 graph_top_right=(feed.width, 0), enable_events=True, drag_submits=True,
                                 key="graph", background_color='green')
     
     preview_element = [sg.Text('Preview')], [sg.Graph((400, 300), (0, 300), (400, 0), background_color='green', key='preview')]
 
-    setup_layout = [[input_graph_element, sg.Column(slider_elements), sg.Column(preview_element)], [sg.Button('Confirm'), sg.Button('Quit')]]
+    setup_layout = [[input_graph_element, sg.Column(slider_elements), sg.Column(preview_element)], [sg.Button('Confirm'), sg.Button('Quit'), spin_element]]
 
     setup_window = sg.Window('Setup', setup_layout)
 
@@ -63,8 +65,8 @@ def filterSetup(feed: Feed):
             # feed.configScale(desired_height=400, desired_width=400)
             setup_window.close()
             
-            return feed
-            graph.get
+            return feed, values['segment_number']
+
         elif event == 'graph' or event.endswith('+UP'):
             # print(event, values)
             # print(f'Startpoint: {startpoint}, Endpoint: {endpoint}, Dim {dims}')
@@ -162,4 +164,5 @@ if __name__ == '__main__':
     # feed = Feed(0, 300, 400)
     # filterSetup(feed)
     
-    filterSetup(Feed('Tests\RealTwo.jpg', 600, 600))
+    feed, number = filterSetup(Feed('Tests\RealTwo.jpg', 600, 600))
+    print(number)

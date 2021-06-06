@@ -9,7 +9,7 @@ from FilterSetup import filterSetup
 
 def main():
     feed = inputSetup()
-    feed = filterSetup(feed)
+    feed, area_number = filterSetup(feed) 
     feed.resize_for_crop = True
     feed.getFrame()
 
@@ -26,7 +26,7 @@ def main():
 
     backround = None
 
-    area_number = 8
+    # area_number = 8
     area_list = [] # type: list[sa]
     area_combo_list = []
 
@@ -82,7 +82,7 @@ def main():
         area_list[x].processArea(feed.getFrame()[0])
 
 
-    viewer_graph = viewer.drawSelected(viewer_graph, area_list, (6,3), area_number)
+    viewer_graph = viewer.drawSelected(viewer_graph, area_list, (3,6), area_number)
 
     cycles = 0
 
@@ -110,7 +110,7 @@ def main():
             cycles += 1
         else:
             cycles = 1
-        viewer_graph = viewer.drawSelected(viewer_graph, area_list, (3,3), area_number)
+        viewer_graph = viewer.drawSelected(viewer_graph, area_list, (3,6), area_number)
         window['cropped'].update(data=area_list[area_selected].getPreview())
         window['digits'].update((getDigits(area_list)))
         graph = feed.drawFrame(graph, True)

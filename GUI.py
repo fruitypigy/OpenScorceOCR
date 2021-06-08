@@ -5,7 +5,11 @@ from InputSetup import inputSetup
 from FilterSetup import filterSetup
 
 def main():
-    sg.theme('DarkTeal6')
+    # sg.theme('DarkTeal6')
+    # sg.theme('SystemDefault1')
+    # sg.theme('DarkTanBlue')
+    sg.theme('Dark2')
+    
     feed = inputSetup()
     feed, area_number = filterSetup(feed) 
     feed.resize_for_crop = True
@@ -19,7 +23,7 @@ def main():
     viewer = sv()
 
     for combo_count in range(0, area_number):
-        area_combo_list.append(str('Area ' + str(combo_count))) 
+        area_combo_list.append(str('Segment ' + str(combo_count+1))) 
 
     graph_element = sg.Graph((feed.crop_width, feed.crop_height), (0, feed.crop_height), (feed.crop_width, 0), pad=(10,10), 
                         enable_events=True, key='graph', drag_submits=True, background_color='black')
@@ -30,7 +34,7 @@ def main():
     text_element = sg.Text('1, 2, 3, 4, 5, 6, 7, 8, 9, 10', (60, 2), 
                         key='digits', text_color='White', background_color='grey')
 
-    selector_col = [[selector_element], [sg.Input('Area 0', (15, 8), key='area_name', enable_events=True)], [sg.Image(key='cropped')]]
+    selector_col = [[selector_element], [sg.Input(area_combo_list[0], (15, 8), key='area_name', enable_events=True)], [sg.Image(key='cropped')]]
 
     layout = [[sg.Column(selector_col, vertical_alignment='top'), graph_element, viewer_graph_element], [text_element, sg.Button('Quit')]]
 
@@ -41,9 +45,9 @@ def main():
     
     ignore_keys = True
 
-    for area_count in range(0, area_number):
+    for x in range(0, area_number):
         area_list.append(sa(graph.draw_rectangle((-1,-1), (-1,-1))))
-        graph = area_list[area_count].adjustRectangle(graph)    
+        graph = area_list[x].adjustRectangle(graph)    
 
     def drawAll(event, values):
 
@@ -93,7 +97,7 @@ def main():
             encoded, guessed = area_list[area_selected].processArea(feed.getFrame()[0], skip_digit=True)
             window['cropped'].update(data=encoded)
             cycles = 1
-        elif cycles <= area_count+1:    
+        elif cycles <= len(area_list):    
             area_list[cycles-1].processArea(feed.getFrame()[0])
             cycles += 1
         else:

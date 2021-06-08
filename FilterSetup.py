@@ -21,7 +21,7 @@ def filterSetup(feed: Feed):
                                 graph_top_right=(feed.width, 0), enable_events=True, drag_submits=True,
                                 key="graph", background_color='green')
     
-    preview_element = [sg.Text('Preview')], [sg.Graph((400, 300), (0, 300), (400, 0), background_color='green', key='preview')]
+    preview_element = [sg.Text('Preview')], [sg.Graph((400, 300), (0, 300), (400, 0), background_color='grey', key='preview')]
 
     setup_layout = [[input_graph_element, sg.Column(slider_elements), sg.Column(preview_element)], [sg.Button('Confirm'), sg.Button('Quit'), spin_element]]
 

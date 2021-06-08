@@ -5,6 +5,7 @@ from InputSetup import inputSetup
 from FilterSetup import filterSetup
 
 def main():
+    sg.theme('DarkTeal6')
     feed = inputSetup()
     feed, area_number = filterSetup(feed) 
     feed.resize_for_crop = True
@@ -14,7 +15,6 @@ def main():
     area_combo_list = []
 
     area_selected = 0
-    list_selected = 'Area 0'
 
     viewer = sv()
 
@@ -25,19 +25,21 @@ def main():
                         enable_events=True, key='graph', drag_submits=True, background_color='black')
     viewer_graph_element = sg.Graph((480, 390), (0, 390), (480, 0), pad=(10,10), 
                         enable_events=True, key='viewer', drag_submits=True, background_color='grey')
-    selector_element = sg.Listbox(values=area_combo_list, size=(10, 12), 
-                        default_values = 'Area 0', enable_events=True, key='area_selector')
+    selector_element = sg.Listbox(values=area_combo_list, size=(15, 12), 
+                        default_values = 'Area 0', enable_events=True, key='area_selector' )
     text_element = sg.Text('1, 2, 3, 4, 5, 6, 7, 8, 9, 10', (60, 2), 
                         key='digits', text_color='White', background_color='grey')
 
-    selector_col = [[selector_element], [sg.Image(key='cropped')]]
+    selector_col = [[selector_element], [sg.Input('Area 0', (15, 8), key='area_name', enable_events=True)], [sg.Image(key='cropped')]]
 
     layout = [[sg.Column(selector_col, vertical_alignment='top'), graph_element, viewer_graph_element], [text_element, sg.Button('Quit')]]
 
     window = sg.Window('OpenScorce', layout, return_keyboard_events=True, finalize=True)
-
     graph = window['graph'] # type: sg.Graph
+    area_selector = window['area_selector'] # type: sg.Listbox
     viewer_graph = window['viewer'] # type: sg.Graph
+    
+    ignore_keys = True
 
     for area_count in range(0, area_number):
         area_list.append(sa(graph.draw_rectangle((-1,-1), (-1,-1))))
@@ -46,8 +48,10 @@ def main():
     def drawAll(event, values):
 
         for count in range(0, area_number):
-            if count == area_selected:
+            if count == area_selected and not ignore_keys:
                 area_list[count].adjustRectangle(graph, event, values, True)
+            elif count == area_selected and ignore_keys:
+                area_list[count].adjustRectangle(graph, is_main=True)
             elif area_list[count].initiated:
                 area_list[count].adjustRectangle(graph)
 
@@ -65,24 +69,27 @@ def main():
 
     cycles = 0
 
-
+    # window['area_name'].block_focus=True
+    
     while True:
         
         event, values = window.read(timeout=0.1)
 
         if event == None or event == 'Quit':
             break
+        elif event == 'area_name':
+            ignore_keys = True
         elif event == 'area_selector':
-            list_selected = values['area_selector'][0] # type: str
-            
-            for selected_count in range(area_number, -1, -1):
-                if list_selected.endswith(str(selected_count)):
-                    area_selected = selected_count
-                    break
-        
+            ignore_keys = True
+            area_selected = area_selector.get_indexes()[0]
+            window['area_name'].update(area_combo_list[area_selector.get_indexes()[0]])
+        elif area_selector.get_indexes() and event == '\r' and values['area_name'] not in area_combo_list:
+            area_combo_list[area_selector.get_indexes()[0]] = values['area_name']
+            area_selector.update(area_combo_list)
         # TODO Allow right click to add segment
-
-        if event == 'graph':
+        elif event == 'graph':
+            ignore_keys = False
+            graph.set_focus()
             encoded, guessed = area_list[area_selected].processArea(feed.getFrame()[0], skip_digit=True)
             window['cropped'].update(data=encoded)
             cycles = 1

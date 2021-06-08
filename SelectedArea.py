@@ -21,10 +21,10 @@ class SelectedArea:
     def adjustRectangle(self, graph: sg.Graph, event=None, values=None, is_main=False):
         self.initiated = True
         if is_main:
-            line_color = 'red'
+            line_color = 'red3'
             size = 4
         else:
-            line_color = 'green'
+            line_color = 'white'
             size = 2
 
         if event == 'graph':

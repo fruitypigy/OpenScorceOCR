@@ -22,7 +22,7 @@ class SelectedViewer:
                 if update:
                     graph.draw_text(f'{digit} [X]', location=text_pos, text_location=TEXT_LOCATION_BOTTOM_LEFT)
                 else:
-                    graph.draw_text(f'{digit}', location=text_pos, text_location=TEXT_LOCATION_BOTTOM_LEFT)
+                    graph.draw_text(f'{digit} [ ]', location=text_pos, text_location=TEXT_LOCATION_BOTTOM_LEFT)
                 graph.draw_image(data=areas[drawn_images].getProcessed(), location=(top_left)) 
                 drawn_images += 1 
         

@@ -73,9 +73,9 @@ class Feed:
         self.width = read.shape[1]
 
         dims = self.width, self.height
+        read = rotate(read, self.rot)
         read = resize(read, (dims[0]*self.scale, dims[1]*self.scale))
         read = self.crop(read)
-        read = rotate(read, self.rot)
       
         if self.resize_for_crop:
             while read.shape[0]*self.crop_scale < 600 and read.shape[1]*self.crop_scale < 800:

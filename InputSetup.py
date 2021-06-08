@@ -26,7 +26,7 @@ def inputSetup():
         
         if event == None or event == 'Quit':
             exit()
-        elif event == 'input':
+        elif event == 'input' and values['input']:
             window['OK'].update(disabled=False)
             feed = Feed(values['input'])
         elif event == 'cam_select':

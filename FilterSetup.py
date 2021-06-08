@@ -115,10 +115,10 @@ def scaleFrame(img, desired_height=400, desired_width=300):
         resized = True
         scale -= 0.1
 
-    # TODO add scale up toggle
-    while not resized and (height*scale < desired_height and width*scale < desired_width):
-        # print(f'Resizing Up: {scale}, {int(width*scale), int(height*scale)}')
-        scale += 0.1
+    # TODO Fix scale up
+    # while not resized and (height*scale < desired_height or width*scale < desired_width):
+    #     print(f'Resizing Up: {scale}, {int(width*scale), int(height*scale)}')
+    #     scale += 0.1
 
     height = int(height * scale-0.1)
     width = int(width * scale-0.1)

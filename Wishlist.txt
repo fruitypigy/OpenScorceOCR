@@ -1,0 +1,43 @@
+Features:
+
+-Feed
+    Perspective Warp option
+
+-GUI
+    Right Click to add Number
+        Duplicates last selected
+    Right Click to remove Number
+    Top menu
+    Click on Number in SelectedViewer to edit Number-specific values
+    Overlay segments over number in Selected area preview
+-SelectedArea
+    Per-Number ImageProcess parameters
+
+-OpenCVMatch
+    Completely revamp digit recognition
+
+Offload all image processing from Feed to SelectedArea
+XML Output
+Save/Load project w/ pickel
+Possibly make GUI its own class
+MultiProcessing
+
+
+
+
+Bugs:
+
+-FilterSetup
+    Selected area preview gets cutoff
+    Scale up does not function properly
+
+-InputSetup
+    Scale up does not function properly
+
+-GUI
+    Crash if selected area is dragged off of graph
+
+-Feed
+    Scale up does not fuction properly
+
+

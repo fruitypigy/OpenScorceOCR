@@ -1,6 +1,5 @@
 from ImageProcess import hsvProcess, resize
 import PySimpleGUI as sg
-from PySimpleGUI.PySimpleGUI import Window
 import cv2
 from Feed import Feed
 
@@ -12,7 +11,7 @@ def filterSetup(feed: Feed):
                     sg.Text('Sat Max', size=(7,1)), sg.Slider((0, 255), 255, orientation='vertical', key='SAT_MX', enable_events=True)],[
                     sg.Text('Val Min', size=(7,1)), sg.Slider((0, 255), 0, orientation='vertical', key='VAL_MN', enable_events=True),
                     sg.Text('Val Max', size=(7,1)), sg.Slider((0, 255), 255, orientation='vertical', key='VAL_MX', enable_events=True)],[
-                    sg.Text('Rotation'), sg.Slider((0,360), 0, orientation='horizontal', key='ROT')],[
+                    sg.Text('Rotation'), sg.Spin((list(range(-179, 180))), 0, key='ROT', size=(4, 4))],[
                         sg.Checkbox('Apply HSV Filter', key='apply_hsv')]
 
     spin_element = sg.Text('Number of Segments'), sg.Spin([i for i in range(1,19)], 1, size=(3,2), key=('segment_number'))
@@ -30,8 +29,6 @@ def filterSetup(feed: Feed):
     graph = setup_window['graph'] # type: sg.Graph
     preview = setup_window['preview'] # type: sg.Graph
 
-    cycles = 0
-
     hsv_vals = (0, 255, 0, 255, 0, 255)
     
     dragging = False
@@ -46,7 +43,11 @@ def filterSetup(feed: Feed):
         hsv_vals = (values['HUE_MN'], values['HUE_MX'], 
                     values['SAT_MN'], values['SAT_MX'], 
                     values['VAL_MN'], values['VAL_MX'],)
-        rot = values['ROT']
+        rot_input = values['ROT']
+        if type(rot_input) == int and rot_input < 180 and rot_input > -180: 
+            rot = rot_input
+        else:
+            rot = 0
         feed.configRotHSV(rot)
         graph = feed.drawFrame(graph, True)
         apply_hsv = values['apply_hsv']

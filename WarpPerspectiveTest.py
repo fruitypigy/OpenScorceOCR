@@ -2,6 +2,7 @@ import numpy as np
 import cv2
 import PySimpleGUI as sg
 import time
+from ImageProcess import warpPerspective
 
 layout = [[sg.Graph((600,600), (0,600), (600,0), enable_events=True, background_color='black', key='graph'), sg.Image(background_color='grey', size=(480,480), key='output')], 
         [sg.Button('Reset'), sg.Button('Warp'), sg.Text('Width:'), sg.Input(100, key='width', size=(5, 4)), sg.Text('Height:'), sg.Input(100, key='height', size=(5,4))],
@@ -26,7 +27,7 @@ while True:
     graph.draw_image(data=img_encoded, location=(0,0))
     pos = list(values['graph'])
     width = int(values['width'])
-    heigth = int(values['height'])
+    height = int(values['height'])
     print(event, values)
     print(pos)
     if event == None:
@@ -45,29 +46,6 @@ while True:
         points = []
         window['points_text'].update(points)
     elif event == 'Warp' and len(points) == 4:
-        start = time.time()
-        frames = cycles = 0
-        while True:
+        encoded = warpPerspective(img, points, (width, height))
+        window['output'].update(data=encoded[1])
         
-            pts1 = np.float32(points)
-            pts2 = np.float32([[0,0], [width, 0], [0,heigth], [width, heigth]])
-            
-            matrix = cv2.getPerspectiveTransform(pts1, pts2)
-
-            transformed = cv2.warpPerspective(img, matrix, (width, heigth))
-            # print('Hello World')
-
-            transformed_encoded = cv2.imencode('.png', transformed)[1].tobytes()
-            window['output'].update(data=transformed_encoded, size=(width, heigth))
-
-
-            window.read(timeout=0.1)
-            if frames >= 100:
-                print(f'Processing at {100/(time.time()-start)} fps')
-                frames = 0
-                start = time.time()
-                cycles += 1
-            elif cycles >= 2:
-                break        
-            else:
-                frames += 1

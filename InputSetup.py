@@ -22,7 +22,7 @@ def inputSetup():
     feed = None
 
     while True:
-        event, values = window.read(timeout=1)
+        event, values = window.read(50)
         
         if event == None or event == 'Quit':
             exit()

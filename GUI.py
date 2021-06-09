@@ -3,6 +3,8 @@ from SelectedArea import SelectedArea as sa
 from SelectedViewer import SelectedViewer as sv
 from InputSetup import inputSetup
 from FilterSetup import filterSetup
+import time
+
 
 def main():
     # sg.theme('DarkTeal6')
@@ -16,17 +18,19 @@ def main():
     feed.getFrame()
 
     area_list = [] # type: list[sa]
-    area_combo_list = []
+    area_combo_list = [] # type: list[str]
 
     area_selected = 0
 
     viewer = sv()
 
     for combo_count in range(0, area_number):
-        area_combo_list.append(str('Segment ' + str(combo_count+1))) 
+        area_combo_list.append(str('Digit ' + str(combo_count+1))) 
+
+    graph_right_click = [[''], ['Add Digit', 'Remove Last']]
 
     graph_element = sg.Graph((feed.crop_width, feed.crop_height), (0, feed.crop_height), (feed.crop_width, 0), pad=(10,10), 
-                        enable_events=True, key='graph', drag_submits=True, background_color='black')
+                        enable_events=True, key='graph', drag_submits=True, background_color='black', right_click_menu=graph_right_click)
     viewer_graph_element = sg.Graph((480, 390), (0, 390), (480, 0), pad=(10,10), 
                         enable_events=True, key='viewer', drag_submits=True, background_color='grey')
     selector_element = sg.Listbox(values=area_combo_list, size=(15, 12), 
@@ -77,7 +81,7 @@ def main():
     
     while True:
         
-        event, values = window.read(timeout=0.1)
+        event, values = window.read(timeout=10)
 
         if event == None or event == 'Quit':
             break
@@ -90,7 +94,25 @@ def main():
         elif area_selector.get_indexes() and event == '\r' and values['area_name'] not in area_combo_list:
             area_combo_list[area_selector.get_indexes()[0]] = values['area_name']
             area_selector.update(area_combo_list)
-        # TODO Allow right click to add segment
+        elif event == 'Add Digit' or event == 'r':
+            x = len(area_combo_list)
+            while f'Digit {x}' in area_combo_list:
+                x += 1
+            area_combo_list.append(f'Digit {x}')
+            area_selector.update(area_combo_list)
+            last_area = area_list[-1]
+            area_list.append(sa(last_area.rectangle, last_area.pos, (last_area.length, last_area.height)))
+            area_list[-1].processArea(feed.getFrame()[0])
+            area_selected = len(area_list) - 1
+            area_number += 1
+
+        elif (event == 'Remove Last' or event == 'R') and len(area_list) > 1:
+            del area_combo_list[-1]
+            del area_list[-1]
+            area_selected = len(area_list) - 1
+            area_number -= 1
+            area_selector.update(area_combo_list)
+
         elif event == 'graph':
             ignore_keys = False
             graph.set_focus()

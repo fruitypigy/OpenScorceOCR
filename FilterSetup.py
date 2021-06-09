@@ -14,7 +14,7 @@ def filterSetup(feed: Feed):
                     sg.Text('Rotation'), sg.Spin((list(range(-179, 180))), 0, key='ROT', size=(4, 4))],[
                         sg.Checkbox('Apply HSV Filter', key='apply_hsv')]
 
-    spin_element = sg.Text('Number of Segments'), sg.Spin([i for i in range(1,19)], 1, size=(3,2), key=('segment_number'))
+    spin_element = sg.Text('Number of Digits'), sg.Spin([i for i in range(1,19)], 1, size=(3,2), key=('segment_number'))
 
     input_graph_element = sg.Graph(canvas_size=(feed.width, feed.height), graph_bottom_left=(0, feed.height), 
                                 graph_top_right=(feed.width, 0), enable_events=True, drag_submits=True,
@@ -38,7 +38,7 @@ def filterSetup(feed: Feed):
     crop_vals = getCrop((1,1),(dims[0], dims[1]),dims)
 
     while True:
-        event, values = setup_window.read(timeout=0.01)
+        event, values = setup_window.read(timeout=100)
         
         hsv_vals = (values['HUE_MN'], values['HUE_MX'], 
                     values['SAT_MN'], values['SAT_MX'], 

@@ -1,4 +1,5 @@
 import PySimpleGUI as sg
+from PySimpleGUI.PySimpleGUI import TEXT_LOCATION_CENTER
 from SelectedArea import SelectedArea as sa 
 from SelectedViewer import SelectedViewer as sv
 from InputSetup import inputSetup
@@ -79,9 +80,13 @@ def main():
 
     # window['area_name'].block_focus=True
     
+    start = time.time()
+    frames = 0
+    pps = 0
+
     while True:
         
-        event, values = window.read(timeout=10)
+        event, values = window.read(timeout=1)
 
         if event == None or event == 'Quit':
             break
@@ -123,12 +128,21 @@ def main():
             area_list[cycles-1].processArea(feed.getFrame()[0])
             cycles += 1
         else:
+            pps = int(cycles/(time.time()-start))
+            start = time.time()
             cycles = 1
         viewer_graph = viewer.drawSelected(viewer_graph, area_list, (3,6), area_number)
         window['cropped'].update(data=area_list[area_selected].getPreview())
         window['digits'].update((getDigits(area_list)))
         graph = feed.drawFrame(graph, True)
         drawAll(event, values)
+        # if frames >= 10:
+        #     fps = int(frames/(time.time()-start))
+        #     start = time.time()
+        # else:
+        #     frames += 1
+        print(f'{pps} Proc/Sec')
+        graph.draw_text(f'{pps} Proccesses/Sec', (80,20), font=('Any 10'), color='white')
 
 if __name__ == '__main__':
     main()

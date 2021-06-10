@@ -1,6 +1,6 @@
 import cv2
 import PySimpleGUI as sg
-from ImageProcess import resize, process, rotate, hsvProcess
+from ImageProcess import resize, process, rotate, hsvProcess, warpPerspective
 
 class Feed:
 
@@ -11,10 +11,12 @@ class Feed:
         self.h_vals = (0, 255)
         self.s_vals = (0, 255)
         self.v_vals = (0, 255)
+        self.skip_warp = True
         self.configInput(feed_input)
         self.configCrop(0, self.read().shape[0], 0, self.read().shape[1])
         self.configScale(desired_height, desired_width)
         self.configRotHSV()
+
 
 
     def configCrop(self, x1, x2, y1, y2, v_vals=(), h_vals=(), s_vals=(), rot=0):
@@ -52,6 +54,12 @@ class Feed:
         
         print(f'Resized to {self.width, self.height}')
 
+    def configWarp(self, coords, dims):
+        self.warp_coords = coords
+        self.warp_dims = dims
+        self.skip_warp = False
+
+
     def configInput(self, feed_input):
         self.feed_input = feed_input
         print(f'Feed Input: {self.feed_input}')
@@ -75,7 +83,9 @@ class Feed:
         dims = self.width, self.height
         read = rotate(read, self.rot)
         read = resize(read, (dims[0]*self.scale, dims[1]*self.scale))
-        read = self.crop(read)
+        # read = self.crop(read)
+        if not self.skip_warp:
+            read = warpPerspective(read, self.warp_coords, self.warp_dims)[0]
       
         if self.resize_for_crop:
             while read.shape[0]*self.crop_scale < 600 and read.shape[1]*self.crop_scale < 800:

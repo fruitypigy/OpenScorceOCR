@@ -14,6 +14,8 @@ def filterSetup(feed: Feed):
                     sg.Text('Rotation'), sg.Spin((list(range(-179, 180))), 0, key='ROT', size=(4, 4))],[
                         sg.Checkbox('Apply HSV Filter', key='apply_hsv')]
 
+    input_elements = [sg.Text('Width'), sg.Input(600, size=(6,4), key='width'), sg.Text('Height'), sg.Input(300, size=(6,4), key='height')]
+
     spin_element = sg.Text('Number of Digits'), sg.Spin([i for i in range(1,19)], 1, size=(3,2), key=('segment_number'))
 
     # input_graph_element = sg.Graph(canvas_size=(feed.width, feed.height), graph_bottom_left=(0, feed.height), 
@@ -25,7 +27,7 @@ def filterSetup(feed: Feed):
     
     preview_element = [sg.Text('Preview')], [sg.Graph((600, 300), (0, 300), (600, 0), background_color='grey', key='preview')]
 
-    setup_layout = [[input_graph_element, sg.Column(slider_elements), sg.Column(preview_element)], [sg.Button('Confirm'), sg.Button('Quit'), spin_element]]
+    setup_layout = [[input_graph_element, sg.Column(slider_elements), sg.Column(preview_element)], input_elements, [sg.Button('Confirm'), sg.Button('Quit'), spin_element]]
     # setup_layout = [[sg.Column(slider_elements), sg.Column(preview_element)], [sg.Button('Confirm'), sg.Button('Quit'), spin_element]]
 
     setup_window = sg.Window('Setup', setup_layout)
@@ -42,14 +44,20 @@ def filterSetup(feed: Feed):
     # crop_vals = getCrop((1,1),(dims[0], dims[1]),dims)
 
     coords = []
-    warped = None
+    warped = feed.getFrame(True)[0]
+    warped_encoded = None
     skip_warp = False
+    saved_coords = None
 
     while True:
         event, values = setup_window.read(timeout=100)
         graph.erase()
         preview.erase()
         graph.draw_image(data=feed.getFrame(True)[1], location=(0,0))
+
+        height = int(values['height'])
+        width = int(values['width'])
+
         hsv_vals = (values['HUE_MN'], values['HUE_MX'], 
                     values['SAT_MN'], values['SAT_MX'], 
                     values['VAL_MN'], values['VAL_MX'],)
@@ -64,32 +72,41 @@ def filterSetup(feed: Feed):
         if event == None or event == 'Quit':
             exit()
         elif event == 'Confirm':
-            # feed = Feed(feed.feed_input, desired_height=600, desired_width=600)
-            # print(feed.feed_input)
-            # feed.configRotHSV(rot, (hsv_vals[0], hsv_vals[1]),
-            #                 (hsv_vals[2], hsv_vals[3]),
-            #                 (hsv_vals[4], hsv_vals[5]))
+            feed = Feed(feed.feed_input, desired_height=600, desired_width=600)
+            print(feed.feed_input)
+            feed.configRotHSV(rot, (hsv_vals[0], hsv_vals[1]),
+                            (hsv_vals[2], hsv_vals[3]),
+                            (hsv_vals[4], hsv_vals[5]))
+      
+            print(saved_coords)
+            feed.configWarp(saved_coords, (width, height))
+            feed.getFrame()
             # feed.configCrop(crop_vals[2], crop_vals[3], 
             #                 crop_vals[0], crop_vals[1])
             # feed.configScale(desired_height=400, desired_width=400)
-            # setup_window.close()
+            setup_window.close()
             
-            # return feed, values['segment_number']
+            return feed, values['segment_number']
             pass
         elif event.endswith('+UP'):
             if len(coords) < 4:
                 coords.append(values['graph'])
                 print(f'Added: {coords}')
-                warped = None
+                warped_encoded = None
                 skip_warp = False
         elif len(coords) == 4 and not skip_warp:
-            warped = warpPerspective(feed.getFrame(True)[0], coords)[1]
+            warped, warped_encoded = warpPerspective(feed.getFrame(True)[0], coords, dims=(width, height))
+            saved_coords = coords[:]
             coords.clear()
             print(f'Cleared: {coords}')
             skip_warp = True
         
         print(f'Length of Coords: {len(coords)}, Skip Warp: {skip_warp}')
-        preview.draw_image(data=warped, location=(0,0))
+        location = center((warped.shape[1], warped.shape[0]))
+        
+        frame = processFeed(warped, hsv_vals, apply_hsv)
+
+        preview.draw_image(data=frame, location=location)
         graph = drawPoints(graph, coords)
             # print(event, values)
             # print(f'Startpoint: {startpoint}, Endpoint: {endpoint}, Dim {dims}')
@@ -117,20 +134,22 @@ def drawPoints(graph: sg.Graph, points: list[tuple]):
 
 
 
-# def processFeed(feed: Feed, hsv_vals, crop_vals, apply_hsv):
-#     frame = feed.getFrame(True)[0]
+def processFeed(img, hsv_vals, apply_hsv):
+    # frame = feed.getFrame(True)[0]
     
-#     x1, x2, y1, y2 = crop_vals
-#     # print(f'Crop: x1: {x1}, x2: {x2}, y1: {y1}, y2: {y2}')
-#     if apply_hsv:
-#         frame = hsvProcess(frame, hsv_vals[0], hsv_vals[1], hsv_vals[2], 
-#                         hsv_vals[3], hsv_vals[4], hsv_vals[5])
-#     frame = frame[y1:y2, x1:x2]
-#     frame, scale = scaleFrame(frame)
+    # x1, x2, y1, y2 = crop_vals
+    # print(f'Crop: x1: {x1}, x2: {x2}, y1: {y1}, y2: {y2}')
+    if apply_hsv:
+        frame = hsvProcess(img, hsv_vals[0], hsv_vals[1], hsv_vals[2], 
+                        hsv_vals[3], hsv_vals[4], hsv_vals[5])
+    else:
+        frame = img
+    # frame = frame[y1:y2, x1:x2]
+    # frame, scale = scaleFrame(frame)
 
-#     location = center((frame.shape[1], frame.shape[0]))
+    # location = center((frame.shape[1], frame.shape[0]))
 
-    # return cv2.imencode('.png', frame)[1].tobytes(), location, scale
+    return cv2.imencode('.png', frame)[1].tobytes()
 
 def scaleFrame(img, desired_height=400, desired_width=300):
     height = img.shape[0]
@@ -173,7 +192,7 @@ def getCrop(startpoint=(1,1), endpoint=(384, 288), dims=(-1,-1)):
     
     return x1, x2, y1, y2
 
-def center(input_dim, preview_dim=(400, 300)):
+def center(input_dim, preview_dim=(600, 300)):
     # print(input_dim)
     hor_dif = preview_dim[0] - input_dim[0]
     vert_dif = preview_dim[1] - input_dim[1]
@@ -187,11 +206,12 @@ def center(input_dim, preview_dim=(400, 300)):
 
 
 if __name__ == '__main__':
+    pass
     # center((200, 150))
 
     # feed = Feed(0, 300, 400)
     # filterSetup(feed)
     
-    filterSetup(Feed('TestInputs\ImageWarpTest6.png', 600, 600))
+    filterSetup(Feed('TestInputs\WarpTest2.jpg', 600, 600))
     # print(number)
     # filterSetup()

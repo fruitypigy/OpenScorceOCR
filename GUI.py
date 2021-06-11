@@ -50,7 +50,7 @@ def main():
     area_selector = window['area_selector']  # type: sg.Listbox
     viewer_graph = window['viewer']  # type: sg.Graph
 
-    ignore_keys = True
+    type_lock = False
 
     for x in range(0, area_number):
         area_list.append(sa(graph.draw_rectangle((-1, -1), (-1, -1))))
@@ -59,9 +59,9 @@ def main():
     def draw_all(event, values):
 
         for count in range(0, area_number):
-            if count == area_selected and not ignore_keys:
+            if count == area_selected and type_lock:
                 area_list[count].adjustRectangle(graph, event, values, True)
-            elif count == area_selected and ignore_keys:
+            elif count == area_selected and not type_lock:
                 area_list[count].adjustRectangle(graph, is_main=True)
             elif area_list[count].initiated:
                 area_list[count].adjustRectangle(graph)
@@ -88,15 +88,15 @@ def main():
         if event is None or event == 'Quit':
             break
         elif event == 'area_name':
-            ignore_keys = True
+            type_lock = False
         elif event == 'area_selector':
-            ignore_keys = True
+            type_lock = False
             area_selected = area_selector.get_indexes()[0]
             window['area_name'].update(area_combo_list[area_selector.get_indexes()[0]])
         elif area_selector.get_indexes() and event == '\r' and values['area_name'] not in area_combo_list:
             area_combo_list[area_selector.get_indexes()[0]] = values['area_name']
             area_selector.update(area_combo_list)
-        elif event == 'Add Digit' or event == 'r':
+        elif event == 'Add Digit' or (type_lock and event == 'r'):
             x = len(area_combo_list)
             while f'Digit {x}' in area_combo_list:
                 x += 1
@@ -108,7 +108,7 @@ def main():
             area_selected = len(area_list) - 1
             area_number += 1
 
-        elif (event == 'Remove Last' or event == 'R') and len(area_list) > 1:
+        elif (event == 'Remove Last' or (type_lock and event == 'R')) and len(area_list) > 1:
             del area_combo_list[-1]
             del area_list[-1]
             area_selected = len(area_list) - 1
@@ -116,7 +116,7 @@ def main():
             area_selector.update(area_combo_list)
 
         elif event == 'graph':
-            ignore_keys = False
+            type_lock = True
             graph.set_focus()
             encoded, guessed = area_list[area_selected].processArea(feed.get_frame()[0], skip_digit=True)
             window['cropped'].update(data=encoded)

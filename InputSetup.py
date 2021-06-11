@@ -39,7 +39,7 @@ def inputSetup():
             feed = Feed(feed.feed_input)
             return feed
         elif feed:
-            window['preview'].update(data=feed.getFrame(True)[1])
+            window['preview'].update(data=feed.get_frame(True)[1])
 
 if __name__ == '__main__':
     inputSetup()

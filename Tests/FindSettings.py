@@ -28,4 +28,4 @@ v_max = guessV(img, 40)
 
 processed = ImageProcess.process(img, 0,255,0,255,0,v_max, scale=86, angle=2)
 
-print(OpenCVMatch.getDigit(processed,2))
+print(OpenCVMatch.get_digit(processed, 2))

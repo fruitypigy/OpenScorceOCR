@@ -1,4 +1,4 @@
-from ImageProcess import hsvProcess, resize
+from ImageProcess import hsv_process, resize
 import PySimpleGUI as sg
 import cv2
 from Feed import Feed
@@ -48,19 +48,19 @@ def filterSetup(feed: Feed):
             rot = rot_input
         else:
             rot = 0
-        feed.configRotHSV(rot)
-        graph = feed.drawFrame(graph, True)
+        feed.config_rot_hsv(rot)
+        graph = feed.draw_frame(graph, True)
         apply_hsv = values['apply_hsv']
         if event == None or event == 'Quit':
             exit()
         elif event == 'Confirm':
             feed = Feed(feed.feed_input, desired_height=600, desired_width=600)
             print(feed.feed_input)
-            feed.configRotHSV(rot, (hsv_vals[0], hsv_vals[1]),
-                            (hsv_vals[2], hsv_vals[3]),
-                            (hsv_vals[4], hsv_vals[5]))
-            feed.configCrop(crop_vals[2], crop_vals[3], 
-                            crop_vals[0], crop_vals[1])
+            feed.config_rot_hsv(rot, (hsv_vals[0], hsv_vals[1]),
+                                (hsv_vals[2], hsv_vals[3]),
+                                (hsv_vals[4], hsv_vals[5]))
+            feed.config_crop(crop_vals[2], crop_vals[3],
+                             crop_vals[0], crop_vals[1])
             # feed.configScale(desired_height=400, desired_width=400)
             setup_window.close()
             
@@ -89,13 +89,13 @@ def filterSetup(feed: Feed):
 
 
 def processFeed(feed: Feed, hsv_vals, crop_vals, apply_hsv):
-    frame = feed.getFrame(True)[0]
+    frame = feed.get_frame(True)[0]
     
     x1, x2, y1, y2 = crop_vals
     # print(f'Crop: x1: {x1}, x2: {x2}, y1: {y1}, y2: {y2}')
     if apply_hsv:
-        frame = hsvProcess(frame, hsv_vals[0], hsv_vals[1], hsv_vals[2], 
-                        hsv_vals[3], hsv_vals[4], hsv_vals[5])
+        frame = hsv_process(frame, hsv_vals[0], hsv_vals[1], hsv_vals[2],
+                            hsv_vals[3], hsv_vals[4], hsv_vals[5])
     frame = frame[y1:y2, x1:x2]
     frame, scale = scaleFrame(frame)
 

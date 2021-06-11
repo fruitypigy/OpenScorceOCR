@@ -1,4 +1,4 @@
-from OpenCVMatch import getDigit
+from OpenCVMatch import get_digit
 from GUI import process
 from multiprocessing import Pool
 from os import name
@@ -15,7 +15,7 @@ class imageWriter:
     def writeProcessed(self):
         name = str(self.number) + '.png'
         processed = ip.process(self.img, v_max=50)
-        print(getDigit(processed))
+        print(get_digit(processed))
         # cv2.imwrite(name, processed)
         print('Finished')
 

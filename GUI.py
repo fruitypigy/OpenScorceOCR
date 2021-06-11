@@ -15,7 +15,7 @@ def main():
     feed = inputSetup()
     feed, area_number = filterSetup(feed)
     feed.resize_for_crop = True
-    feed.getFrame()
+    feed.get_frame()
 
     area_list = []  # type: list[sa]
     area_combo_list = []  # type: list[str]
@@ -35,7 +35,7 @@ def main():
     viewer_graph_element = sg.Graph((480, 390), (0, 390), (480, 0), pad=(10, 10),
                                     enable_events=True, key='viewer', drag_submits=True, background_color='grey')
     selector_element = sg.Listbox(values=area_combo_list, size=(15, 12),
-                                  default_values='Area 0', enable_events=True, key='area_selector')
+                                  default_values=['Area 0'], enable_events=True, key='area_selector')
     text_element = sg.Text('1, 2, 3, 4, 5, 6, 7, 8, 9, 10', (60, 2),
                            key='digits', text_color='White', background_color='grey')
 
@@ -73,9 +73,9 @@ def main():
         return digits
 
     for x in range(len(area_list)):
-        area_list[x].processArea(feed.getFrame()[0])
+        area_list[x].processArea(feed.get_frame()[0])
 
-    viewer_graph = viewer.drawSelected(viewer_graph, area_list, (3, 6), area_number)
+    viewer_graph = viewer.draw_selected(viewer_graph, area_list, (3, 6), area_number)
 
     cycles = 0
 
@@ -83,7 +83,7 @@ def main():
 
     while True:
 
-        event, values = window.read(timeout=10)
+        event, values = window.read(timeout=1)
 
         if event is None or event == 'Quit':
             break
@@ -104,7 +104,7 @@ def main():
             area_selector.update(area_combo_list)
             last_area = area_list[-1]
             area_list.append(sa(last_area.rectangle, last_area.pos, (last_area.length, last_area.height)))
-            area_list[-1].processArea(feed.getFrame()[0])
+            area_list[-1].processArea(feed.get_frame()[0])
             area_selected = len(area_list) - 1
             area_number += 1
 
@@ -118,18 +118,18 @@ def main():
         elif event == 'graph':
             ignore_keys = False
             graph.set_focus()
-            encoded, guessed = area_list[area_selected].processArea(feed.getFrame()[0], skip_digit=True)
+            encoded, guessed = area_list[area_selected].processArea(feed.get_frame()[0], skip_digit=True)
             window['cropped'].update(data=encoded)
             cycles = 1
         elif cycles <= len(area_list):
-            area_list[cycles - 1].processArea(feed.getFrame()[0])
+            area_list[cycles - 1].processArea(feed.get_frame()[0])
             cycles += 1
         else:
             cycles = 1
-        viewer_graph = viewer.drawSelected(viewer_graph, area_list, (3, 6), area_number)
+        viewer_graph = viewer.draw_selected(viewer_graph, area_list, (3, 6), area_number)
         window['cropped'].update(data=area_list[area_selected].getPreview())
         window['digits'].update((get_digits(area_list)))
-        graph = feed.drawFrame(graph, True)
+        graph = feed.draw_frame(graph, True)
         draw_all(event, values)
 
 

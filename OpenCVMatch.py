@@ -9,8 +9,8 @@ SegTM = cv2.imread('Segments\SegTM.jpg')
 SegTR = cv2.imread('Segments\SegTR.jpg')
 SegTL = cv2.imread('Segments\SegTL.jpg')
 
-segments = [SegBM,SegBR,SegBL,SegM,SegTM,SegTR,SegTL]
-segmentnames = ['SegBM', 'SegBR', 'SegBL', 'SegM', 'SegTM', 'SegTR', 'SegTL']
+segments = [SegBM, SegBR, SegBL, SegM, SegTM, SegTR, SegTL]
+segment_names = ['SegBM', 'SegBR', 'SegBL', 'SegM', 'SegTM', 'SegTR', 'SegTL']
 
 zero = [True, True, True, False, True, True, True]
 one = [False, True, False, False, False, True, False]
@@ -23,48 +23,49 @@ seven = [False, True, False, False, True, True, False]
 eight = [True, True, True, True, True, True, True]
 nine = [True, True, False, True, True, True, True]
 
-numbers = [zero,one,two,three,four,five,six,seven,eight,nine]
-
-def checkSeg(img, seg,  min_percentage=2.5, max_percentage=10):
-	# print('Checking ' + segmentnames[seg])
-
-	check = segments[seg]
-
-	combined = (cv2.addWeighted(check, 0.4, img, 0.1, 0))
-
-	combined_hsv = cv2.cvtColor(combined, cv2.COLOR_BGR2HSV)
-
-	sensitivity = 0
-	lower_bound = np.array([0 - sensitivity, 0 - sensitivity, 0 - sensitivity]) 
-	upper_bound = np.array([1 + sensitivity, 1 + sensitivity, 1 + sensitivity]) 
-
-	msk = cv2.inRange(combined_hsv, lower_bound, upper_bound)
+numbers = [zero, one, two, three, four, five, six, seven, eight, nine]
 
 
-	percentage = calcSeg(msk)
-	# print("Percentage = " + str(percentage) + '\n')
-	return (percentage > min_percentage and percentage < max_percentage)
+def check_seg(img, seg, min_percentage=2.5, max_percentage=10):
+    # print('Checking ' + segment_names[seg])
+
+    check = segments[seg]
+
+    combined = (cv2.addWeighted(check, 0.4, img, 0.1, 0))
+
+    combined_hsv = cv2.cvtColor(combined, cv2.COLOR_BGR2HSV)
+
+    sensitivity = 0
+    lower_bound = np.array([0 - sensitivity, 0 - sensitivity, 0 - sensitivity])
+    upper_bound = np.array([1 + sensitivity, 1 + sensitivity, 1 + sensitivity])
+
+    msk = cv2.inRange(combined_hsv, lower_bound, upper_bound)
+
+    percentage = calc_seg(msk)
+    # print("Percentage = " + str(percentage) + '\n')
+    return min_percentage < percentage < max_percentage
 
 
-def calcSeg(msk): 
-	''' 
-	returns the percentage of white in a binary image 
-	''' 
-	height, width = msk.shape[:2] 
-	num_pixels = height * width 
-	count_white = cv2.countNonZero(msk) 
-	percent_white = (count_white/num_pixels) * 100 
-	percent_white = round(percent_white,2) 
-	return percent_white
+def calc_seg(msk):
 
-def getDigit(img, min_percentage=2.5, max_percentage=10):
-	
-	digit = [checkSeg(img,0,min_percentage,max_percentage),checkSeg(img,1,min_percentage,max_percentage),checkSeg(img,2,min_percentage,max_percentage),checkSeg(img,3,min_percentage,max_percentage),checkSeg(img,4,min_percentage,max_percentage),checkSeg(img,5,min_percentage,max_percentage),checkSeg(img,6,min_percentage,max_percentage)]
-	
-	for x in range(10):
-		if digit == numbers[x]:
-			# print("Found " + str(x) + ' with min %: ' + str(min_percentage) + ' max % :' + str(max_percentage))
-			return x
-		x += 1
-	# print("Failed to Find Digit" + ' with min %: ' + str(min_percentage) + ' max % :' + str(max_percentage))
-	return -1
+    height, width = msk.shape[:2]
+    num_pixels = height * width
+    count_white = cv2.countNonZero(msk)
+    percent_white = (count_white / num_pixels) * 100
+    percent_white = round(percent_white, 2)
+    return percent_white
+
+
+def get_digit(img, min_percentage=2.5, max_percentage=10):
+    digit = [check_seg(img, 0, min_percentage, max_percentage), check_seg(img, 1, min_percentage, max_percentage),
+             check_seg(img, 2, min_percentage, max_percentage), check_seg(img, 3, min_percentage, max_percentage),
+             check_seg(img, 4, min_percentage, max_percentage), check_seg(img, 5, min_percentage, max_percentage),
+             check_seg(img, 6, min_percentage, max_percentage)]
+
+    for x in range(10):
+        if digit == numbers[x]:
+            # print("Found " + str(x) + ' with min %: ' + str(min_percentage) + ' max % :' + str(max_percentage))
+            return x
+        x += 1
+    # print("Failed to Find Digit" + ' with min %: ' + str(min_percentage) + ' max % :' + str(max_percentage))
+    return -1

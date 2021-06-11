@@ -1,5 +1,5 @@
 import PySimpleGUI as sg
-from SelectedArea import SelectedArea as sa 
+from SelectedArea import SelectedArea as sa
 from SelectedViewer import SelectedViewer as sv
 from InputSetup import inputSetup
 from FilterSetup import filterSetup
@@ -11,49 +11,52 @@ def main():
     # sg.theme('SystemDefault1')
     # sg.theme('DarkTanBlue')
     sg.theme('Dark2')
-    
+
     feed = inputSetup()
-    feed, area_number = filterSetup(feed) 
+    feed, area_number = filterSetup(feed)
     feed.resize_for_crop = True
     feed.getFrame()
 
-    area_list = [] # type: list[sa]
-    area_combo_list = [] # type: list[str]
+    area_list = []  # type: list[sa]
+    area_combo_list = []  # type: list[str]
 
     area_selected = 0
 
     viewer = sv()
 
     for combo_count in range(0, area_number):
-        area_combo_list.append(str('Digit ' + str(combo_count+1))) 
+        area_combo_list.append(str('Digit ' + str(combo_count + 1)))
 
     graph_right_click = [[''], ['Add Digit', 'Remove Last']]
 
-    graph_element = sg.Graph((feed.crop_width, feed.crop_height), (0, feed.crop_height), (feed.crop_width, 0), pad=(10,10), 
-                        enable_events=True, key='graph', drag_submits=True, background_color='black', right_click_menu=graph_right_click)
-    viewer_graph_element = sg.Graph((480, 390), (0, 390), (480, 0), pad=(10,10), 
-                        enable_events=True, key='viewer', drag_submits=True, background_color='grey')
-    selector_element = sg.Listbox(values=area_combo_list, size=(15, 12), 
-                        default_values = 'Area 0', enable_events=True, key='area_selector' )
-    text_element = sg.Text('1, 2, 3, 4, 5, 6, 7, 8, 9, 10', (60, 2), 
-                        key='digits', text_color='White', background_color='grey')
+    graph_element = sg.Graph((feed.crop_width, feed.crop_height), (0, feed.crop_height), (feed.crop_width, 0),
+                             pad=(10, 10), enable_events=True, key='graph', drag_submits=True, background_color='black',
+                             right_click_menu=graph_right_click)
+    viewer_graph_element = sg.Graph((480, 390), (0, 390), (480, 0), pad=(10, 10),
+                                    enable_events=True, key='viewer', drag_submits=True, background_color='grey')
+    selector_element = sg.Listbox(values=area_combo_list, size=(15, 12),
+                                  default_values='Area 0', enable_events=True, key='area_selector')
+    text_element = sg.Text('1, 2, 3, 4, 5, 6, 7, 8, 9, 10', (60, 2),
+                           key='digits', text_color='White', background_color='grey')
 
-    selector_col = [[selector_element], [sg.Input(area_combo_list[0], (15, 8), key='area_name', enable_events=True)], [sg.Image(key='cropped')]]
+    selector_col = [[selector_element], [sg.Input(area_combo_list[0], (15, 8), key='area_name', enable_events=True)],
+                    [sg.Image(key='cropped')]]
 
-    layout = [[sg.Column(selector_col, vertical_alignment='top'), graph_element, viewer_graph_element], [text_element, sg.Button('Quit')]]
+    layout = [[sg.Column(selector_col, vertical_alignment='top'), graph_element, viewer_graph_element],
+              [text_element, sg.Button('Quit')]]
 
     window = sg.Window('OpenScorce', layout, return_keyboard_events=True, finalize=True)
-    graph = window['graph'] # type: sg.Graph
-    area_selector = window['area_selector'] # type: sg.Listbox
-    viewer_graph = window['viewer'] # type: sg.Graph
-    
+    graph = window['graph']  # type: sg.Graph
+    area_selector = window['area_selector']  # type: sg.Listbox
+    viewer_graph = window['viewer']  # type: sg.Graph
+
     ignore_keys = True
 
     for x in range(0, area_number):
-        area_list.append(sa(graph.draw_rectangle((-1,-1), (-1,-1))))
-        graph = area_list[x].adjustRectangle(graph)    
+        area_list.append(sa(graph.draw_rectangle((-1, -1), (-1, -1))))
+        graph = area_list[x].adjustRectangle(graph)
 
-    def drawAll(event, values):
+    def draw_all(event, values):
 
         for count in range(0, area_number):
             if count == area_selected and not ignore_keys:
@@ -63,8 +66,8 @@ def main():
             elif area_list[count].initiated:
                 area_list[count].adjustRectangle(graph)
 
-    def getDigits(areas: list[sa]):
-        digits = [] # type: list[int]
+    def get_digits(areas: list[sa]):
+        digits = []  # type: list[int]
         for count in range(len(areas)):
             digits.append(areas[count].getDigit())
         return digits
@@ -72,18 +75,17 @@ def main():
     for x in range(len(area_list)):
         area_list[x].processArea(feed.getFrame()[0])
 
-
-    viewer_graph = viewer.drawSelected(viewer_graph, area_list, (3,6), area_number)
+    viewer_graph = viewer.drawSelected(viewer_graph, area_list, (3, 6), area_number)
 
     cycles = 0
 
     # window['area_name'].block_focus=True
-    
+
     while True:
-        
+
         event, values = window.read(timeout=10)
 
-        if event == None or event == 'Quit':
+        if event is None or event == 'Quit':
             break
         elif event == 'area_name':
             ignore_keys = True
@@ -119,16 +121,17 @@ def main():
             encoded, guessed = area_list[area_selected].processArea(feed.getFrame()[0], skip_digit=True)
             window['cropped'].update(data=encoded)
             cycles = 1
-        elif cycles <= len(area_list):    
-            area_list[cycles-1].processArea(feed.getFrame()[0])
+        elif cycles <= len(area_list):
+            area_list[cycles - 1].processArea(feed.getFrame()[0])
             cycles += 1
         else:
             cycles = 1
-        viewer_graph = viewer.drawSelected(viewer_graph, area_list, (3,6), area_number)
+        viewer_graph = viewer.drawSelected(viewer_graph, area_list, (3, 6), area_number)
         window['cropped'].update(data=area_list[area_selected].getPreview())
-        window['digits'].update((getDigits(area_list)))
+        window['digits'].update((get_digits(area_list)))
         graph = feed.drawFrame(graph, True)
-        drawAll(event, values)
+        draw_all(event, values)
+
 
 if __name__ == '__main__':
     main()

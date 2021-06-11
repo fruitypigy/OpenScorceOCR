@@ -4,6 +4,7 @@ from SelectedViewer import SelectedViewer as sv
 from InputSetup import inputSetup
 from FilterSetup import filterSetup
 import time
+from xml.dom.minidom import parseString
 
 
 def main():
@@ -21,6 +22,8 @@ def main():
     area_combo_list = [] # type: list[str]
 
     area_selected = 0
+
+    xml_dict = {}
 
     viewer = sv()
 
@@ -92,6 +95,7 @@ def main():
             area_selected = area_selector.get_indexes()[0]
             window['area_name'].update(area_combo_list[area_selector.get_indexes()[0]])
         elif area_selector.get_indexes() and event == '\r' and values['area_name'] not in area_combo_list:
+            
             area_combo_list[area_selector.get_indexes()[0]] = values['area_name']
             area_selector.update(area_combo_list)
         elif event == 'Add Digit' or event == 'r':
@@ -109,6 +113,7 @@ def main():
         elif (event == 'Remove Last' or event == 'R') and len(area_list) > 1:
             del area_combo_list[-1]
             del area_list[-1]
+            xml_dict.popitem()
             area_selected = len(area_list) - 1
             area_number -= 1
             area_selector.update(area_combo_list)
@@ -120,7 +125,8 @@ def main():
             window['cropped'].update(data=encoded)
             cycles = 1
         elif cycles <= len(area_list):    
-            area_list[cycles-1].processArea(feed.getFrame()[0])
+            digit = area_list[cycles-1].processArea(feed.getFrame()[0])[1]
+            xml_dict[cycles-1] = area_combo_list[cycles-1], digit
             cycles += 1
         else:
             cycles = 1
@@ -129,6 +135,11 @@ def main():
         window['digits'].update((getDigits(area_list)))
         graph = feed.drawFrame(graph, True)
         drawAll(event, values)
+        print(f'###\n{xml_dict}\n###')
+
+        # xml = dicttoxml.dicttoxml(xml_dict)
+        # with open('digits.xml', 'w') as f:
+        #     f.write(xml)
 
 if __name__ == '__main__':
     main()

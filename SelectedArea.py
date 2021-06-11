@@ -1,7 +1,7 @@
 import cv2
 import ImageProcess as  ip
 import PySimpleGUI as sg
-from OpenCVMatch import getDigit
+from OpenCVMatch import get_digit
 
 class SelectedArea:
 
@@ -76,11 +76,11 @@ class SelectedArea:
         
     def processArea(self, frame, skip_digit=False):
         self.cropped = self.getCrop(frame)[1]
-        self.processed = ip.hsvProcess(self.cropped, v_min=255)
+        self.processed = ip.hsv_process(self.cropped, v_min=255)
         self.processed = ip.resize(self.processed, (60,100))
 
         if not skip_digit:
-            self.guessed = getDigit(self.processed, max_percentage=6.5)
+            self.guessed = get_digit(self.processed, max_percentage=6.5)
         self.processed_encoded = cv2.imencode('.png', self.processed)[1].tobytes()
         self.update = not self.update
         return self.processed_encoded, self.guessed

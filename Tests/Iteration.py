@@ -48,10 +48,10 @@ def iterate(img):
                     #     count = 0
                     # else:                
                     #     count += 1
-                    found = (OpenCVMatch.checkSeg(processed, 1, min_percentage, max_percentage) 
-                        or OpenCVMatch.checkSeg(processed, 5, min_percentage, max_percentage))
+                    found = (OpenCVMatch.check_seg(processed, 1, min_percentage, max_percentage)
+                             or OpenCVMatch.check_seg(processed, 5, min_percentage, max_percentage))
                     if found:
-                        possible_digit = OpenCVMatch.getDigit(processed, min_percentage, max_percentage)
+                        possible_digit = OpenCVMatch.get_digit(processed, min_percentage, max_percentage)
                         print(possible_digit)
                         if possible_digit != -1:
                             print('Found ' + str(possible_digit))

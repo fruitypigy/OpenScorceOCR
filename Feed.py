@@ -106,4 +106,3 @@ class Feed:
     def draw_frame(self, graph: sg.Graph, raw=False):
         graph.erase()
         graph.draw_image(data=self.get_frame(raw)[1], location=(0, 0))
-        return graph

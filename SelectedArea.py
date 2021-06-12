@@ -5,10 +5,11 @@ from OpenCVMatch import get_digit
 
 class SelectedArea:
 
-    def __init__(self, rectangle, pos = (30, 50), dim = (30, 50)):
+    def __init__(self, pos=(30, 50), dim=(30, 50)):
         self.dim = dim
         self.pos = pos
-        self.rectangle = rectangle
+        # self.rectangle = rectangle
+        self.processed_encoded = None
         self.length = dim[0]
         self.height = dim[1]
         self.top_left = (0,1)
@@ -16,6 +17,7 @@ class SelectedArea:
         self.initiated = False
         self.processed = None
         self.guessed = -1
+        self.coords = []
         self.update = False
 
     def adjustRectangle(self, graph: sg.Graph, event=None, values=None, is_main=False):
@@ -59,12 +61,12 @@ class SelectedArea:
 
         graph.draw_rectangle(self.top_left, self.bottom_right, line_color=line_color, line_width=size)
 
-        return graph
+        # return graph
 
     def getCrop(self, frame):
         # TODO Fix crash when selecting area outside of graph
-        self.coords = [self.bottom_right[1], self.top_left[1], 
-                self.top_left[0], self.bottom_right[0]] 
+        self.coords = [self.bottom_right[1], self.top_left[1],
+                self.top_left[0], self.bottom_right[0]]
 
         for x in range(len(self.coords)):
             if self.coords[x-1] < 0:

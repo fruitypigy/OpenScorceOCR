@@ -34,7 +34,7 @@ def filterSetup(feed: Feed):
     dragging = False
 
     dims = (feed.width, feed.height)
-    startpoint = endpoint = (-1,-1)
+    start_point = endpoint = (-1,-1)
     crop_vals = getCrop((1,1),(dims[0], dims[1]),dims)
 
     while True:
@@ -49,7 +49,7 @@ def filterSetup(feed: Feed):
         else:
             rot = 0
         feed.config_rot_hsv(rot)
-        graph = feed.draw_frame(graph, True)
+        feed.draw_frame(graph, True)
         apply_hsv = values['apply_hsv']
         if event == None or event == 'Quit':
             exit()
@@ -68,7 +68,7 @@ def filterSetup(feed: Feed):
 
         elif event == 'graph' or event.endswith('+UP'):
             # print(event, values)
-            # print(f'Startpoint: {startpoint}, Endpoint: {endpoint}, Dim {dims}')
+            # print(f'Startpoint: {start_point}, Endpoint: {endpoint}, Dim {dims}')
             coords = values['graph']
             if event.endswith('+UP'):
                 endpoint = coords
@@ -76,16 +76,16 @@ def filterSetup(feed: Feed):
             elif dragging:
                 endpoint = coords
             else:
-                startpoint = coords
+                start_point = coords
                 dragging = True
 
-        if startpoint != endpoint and not dragging:
-            crop_vals = getCrop(startpoint, endpoint, dims)
+        if start_point != endpoint and not dragging:
+            crop_vals = getCrop(start_point, endpoint, dims)
         img, location, scale = processFeed(feed, hsv_vals, crop_vals, apply_hsv)
         # setup_window['preview'].update(data=img)
         preview.erase()
         preview.draw_image(data=img, location=location)
-        graph.draw_rectangle(startpoint, endpoint, line_color='white', line_width=3)
+        graph.draw_rectangle(start_point, endpoint, line_color='white', line_width=3)
 
 
 def processFeed(feed: Feed, hsv_vals, crop_vals, apply_hsv):

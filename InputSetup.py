@@ -3,6 +3,7 @@ import PySimpleGUI as sg
 from PySimpleGUI.PySimpleGUI import HorizontalSeparator
 from Feed import Feed
 
+
 def inputSetup():
     sg.Spin(('None', '2'))
 

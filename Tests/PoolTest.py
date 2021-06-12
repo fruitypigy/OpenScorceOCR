@@ -1,5 +1,5 @@
 from OpenCVMatch import get_digit
-from GUI import process
+from main import process
 from multiprocessing import Pool
 from os import name
 from PySimpleGUI.PySimpleGUI import I

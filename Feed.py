@@ -55,16 +55,12 @@ class Feed:
     def config_input(self, feed_input):
         self.feed_input = feed_input
         print(f'Feed Input: {self.feed_input}')
-        if type(feed_input) == int:
+        if type(feed_input) == int or feed_input.endswith('.mp4'):
             self.is_video = True
             self.cap = cv2.VideoCapture(feed_input)
-
-        elif type(feed_input) == str:
+        else:
             self.is_video = False
             self.img = cv2.imread(feed_input)
-
-        else:
-            exit(1)
 
     def get_frame(self, raw=False):
         read = self.read()

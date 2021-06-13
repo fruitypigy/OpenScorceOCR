@@ -8,23 +8,25 @@ def inputSetup():
     sg.Spin(('None', '2'))
 
     # TODO Fix crash on close with out selecting image
-    browse_element = sg.Column([[sg.Text('Image Input')], 
+    browse_element = sg.Column([[sg.Text('Image Input')],
                                 [sg.FileBrowse(target='input', file_types=(('JPG', '.jpg'), ('PNG', '.png')))]])
 
-    camera_select_element = sg.Column(([sg.Text('Camera Input')], 
-                            [sg.Spin((0, 1, 2, 3), 'None', size=(6, 1), key='cam_select', enable_events=True)]))
+    camera_select_element = sg.Column(([[sg.Text('Camera Input')],
+                                        [sg.Spin((0, 1, 2, 3), 'None', size=(6, 1), key='cam_select',
+                                                 enable_events=True)]]))
 
     preview_element = sg.Image(background_color='grey', size=(400, 400), key='preview')
 
     selected_element = sg.Input(key='input', size=(20, 1), readonly=True, enable_events=True)
 
-    window = sg.Window('Setup', [[preview_element], [browse_element, camera_select_element], [HorizontalSeparator()], [selected_element, sg.OK(disabled=True, key='OK'), sg.Quit()]])
+    window = sg.Window('Setup', [[preview_element], [browse_element, camera_select_element], [HorizontalSeparator()],
+                                 [selected_element, sg.OK(disabled=True, key='OK'), sg.Quit()]])
 
     feed = None
 
     while True:
         event, values = window.read(50)
-        
+
         if event == None or event == 'Quit':
             exit()
         elif event == 'input' and values['input']:
@@ -41,6 +43,7 @@ def inputSetup():
             return feed
         elif feed:
             window['preview'].update(data=feed.get_frame(True)[1])
+
 
 if __name__ == '__main__':
     inputSetup()

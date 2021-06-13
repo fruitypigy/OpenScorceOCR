@@ -23,6 +23,8 @@ def main():
     feed.resize_for_crop = True
     feed.get_frame()
 
+    default_unrecognized = 0
+
     area_dict = AreaDict(area_number)
     for key in area_dict().keys():
         area_dict()[key].processArea(feed.get_frame()[0])
@@ -129,20 +131,20 @@ def main():
         else:
             cycles = 1
 
-        viewer.draw_selected(viewer_graph, area_dict)
+        # viewer.draw_selected(viewer_graph, area_dict)
         window['cropped'].update(data=area_dict()[selected_key].getPreview())  # --------
         window['digits'].update(get_digits())
         feed.draw_frame(graph, True)
-        area_dict.update_xml('first_real_test.xml')
+        area_dict.update_xml('first_real_test.xml', default_unrecognized)
         draw_all()
 
         wait = 33 - ((time.time() - start) * 1000)
         wait_list.append(wait)
-        if len(wait_list) >= 10:
+        if len(wait_list) >= 15:
             if mean(wait_list) > 0:
-                perf_text = f'Ahead by {int(mean(wait_list))}ms'
+                perf_text = f'Ahead by {round(mean(wait_list), 3)}ms'
             else:
-                perf_text = f'Behind by {int(mean(wait_list)*-1)}ms, skipping wait'
+                perf_text = f'Behind by {round((mean(wait_list)*-1), 3)}ms, skipping wait'
                 wait = 1
         window['performance_monitor'].update(perf_text)
 

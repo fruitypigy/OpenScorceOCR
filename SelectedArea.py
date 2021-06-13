@@ -3,17 +3,17 @@ import ImageProcess as  ip
 import PySimpleGUI as sg
 from OpenCVMatch import get_digit
 
+
 class SelectedArea:
 
     def __init__(self, pos=(30, 50), dim=(30, 50)):
         self.dim = dim
         self.pos = pos
-        # self.rectangle = rectangle
         self.processed_encoded = None
         self.length = dim[0]
         self.height = dim[1]
-        self.top_left = (0,1)
-        self.bottom_right = (1,0)
+        self.top_left = (0, 1)
+        self.bottom_right = (1, 0)
         self.initiated = False
         self.processed = None
         self.guessed = -1
@@ -47,15 +47,15 @@ class SelectedArea:
             self.pos = (self.pos[0] + 4, self.pos[1])
         elif event == 'S':
             self.pos = (self.pos[0], self.pos[1] + 4)
-        elif ((event == 'MouseWheel:Up' or event == 'q' or event == 'Q' or event == ']') 
-                and self.length < 120): 
+        elif ((event == 'MouseWheel:Up' or event == 'q' or event == 'Q' or event == ']')
+              and self.length < 120):
             self.length += 3
             self.height += 5
-        elif ((event == 'MouseWheel:Down' or event == 'e' or event == 'E' or event == '[') 
-                and self.length > 3):
+        elif ((event == 'MouseWheel:Down' or event == 'e' or event == 'E' or event == '[')
+              and self.length > 3):
             self.length -= 3
             self.height -= 5
-        
+
         self.top_left = (self.pos[0] - self.length, self.pos[1] + self.height)
         self.bottom_right = (self.pos[0] + self.length, self.pos[1] - self.height)
 
@@ -66,35 +66,37 @@ class SelectedArea:
     def getCrop(self, frame):
         # TODO Fix crash when selecting area outside of graph
         self.coords = [self.bottom_right[1], self.top_left[1],
-                self.top_left[0], self.bottom_right[0]]
+                       self.top_left[0], self.bottom_right[0]]
 
         for x in range(len(self.coords)):
-            if self.coords[x-1] < 0:
-                self.coords[x-1] = 0
+            if self.coords[x - 1] < 0:
+                self.coords[x - 1] = 0
 
         frame = frame[self.coords[0]:self.coords[1], self.coords[2]:self.coords[3]]
         encoded = cv2.imencode('.png', frame)[1].tobytes()
         return encoded, frame
-        
+
     def processArea(self, frame, skip_digit=False):
         self.cropped = self.getCrop(frame)[1]
         self.processed = ip.hsv_process(self.cropped, v_min=255)
-        self.processed = ip.resize(self.processed, (60,100))
+        self.processed = ip.resize(self.processed, (60, 100))
 
         if not skip_digit:
             self.guessed = get_digit(self.processed, max_percentage=6.5)
         self.processed_encoded = cv2.imencode('.png', self.processed)[1].tobytes()
         self.update = not self.update
         return self.processed_encoded, self.guessed
-        
+
     def getProcessed(self):
         return self.processed_encoded
 
     def getPreview(self):
         # TODO overlay segments on preview to make adjustments easier
-        self.processed_preview = ip.resize(self.processed, (90,150))
+        self.processed_preview = ip.resize(self.processed, (90, 150))
         self.encoded_preview = cv2.imencode('.png', self.processed_preview)[1].tobytes()
         return self.encoded_preview
-        
-    def getDigit(self):
+
+    def getDigit(self, unrecognized=-1):
+        if self.guessed == -1:
+            return unrecognized, self.update
         return self.guessed, self.update

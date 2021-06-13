@@ -63,16 +63,13 @@ class Feed:
     def configInput(self, feed_input):
         self.feed_input = feed_input
         print(f'Feed Input: {self.feed_input}')
-        if type(feed_input) == int:
+        if type(feed_input) == int or feed_input.endswith('.mp4'):
             self.is_video = True
             self.cap = cv2.VideoCapture(feed_input)
-
-        elif type(feed_input) == str:
+        else:
             self.is_video = False
             self.img = cv2.imread(feed_input)
 
-        else:
-            exit(1)
 
     def getFrame(self, raw=False):
         read = self.read()
@@ -86,13 +83,13 @@ class Feed:
         # read = self.crop(read)
         if not self.skip_warp:
             read = warpPerspective(read, self.warp_coords, self.warp_dims)[0]
-      
+
         if self.resize_for_crop:
             while read.shape[0]*self.crop_scale < 600 and read.shape[1]*self.crop_scale < 800:
-                
+
                 self.crop_scale += 0.125
                 # print(f'Resizing: {read.shape[0]*self.crop_scale, read.shape[1]*self.crop_scale}')
-                
+
             if self.crop_scale != 1:
                 self.crop_scale -= 0.125
                 self.crop_height = int(read.shape[0] * self.crop_scale)

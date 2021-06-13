@@ -8,7 +8,7 @@ def inputSetup():
 
     # TODO Fix crash on close with out selecting image
     browse_element = sg.Column([[sg.Text('Image Input')], 
-                                [sg.FileBrowse(target='input', file_types=(('JPG', '.jpg'), ('PNG', '.png')))]])
+                                [sg.FileBrowse(target='input', file_types=(('jpg', '.jpg'), ('png', '.png'), ('mp4', '.mp4')))]])
 
     camera_select_element = sg.Column(([sg.Text('Camera Input')], 
                             [sg.Spin((0, 1, 2, 3), 'None', size=(6, 1), key='cam_select', enable_events=True)]))

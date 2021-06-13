@@ -57,7 +57,7 @@ def calcSeg(msk):
 	percent_white = round(percent_white,2) 
 	return percent_white
 
-def getDigit(img, min_percentage=2.5, max_percentage=10):
+def getDigit(img, min_percentage=1.75, max_percentage=10):
 	
 	digit = [checkSeg(img,0,min_percentage,max_percentage),checkSeg(img,1,min_percentage,max_percentage),checkSeg(img,2,min_percentage,max_percentage),checkSeg(img,3,min_percentage,max_percentage),checkSeg(img,4,min_percentage,max_percentage),checkSeg(img,5,min_percentage,max_percentage),checkSeg(img,6,min_percentage,max_percentage)]
 	

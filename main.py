@@ -50,7 +50,7 @@ def main():
                     [sg.Image(key='cropped')]]
 
     layout = [[sg.Column(selector_col, vertical_alignment='top'), sg.Column([[performance_element], [graph_element]]),
-               viewer_graph_element], [text_element, sg.Button('Quit')]]
+               sg.Column([[viewer_graph_element], [sg.Check('Enable Viewer', key='viewer_enable')]])], [text_element, sg.Button('Quit')]]
 
     window = sg.Window('OpenScorce', layout, return_keyboard_events=True, finalize=True)
     graph = window['graph']  # type: sg.Graph
@@ -86,10 +86,14 @@ def main():
     wait_list = []
     perf_text = ''
 
+    start = 0
+    frames = 0
+    fps = 0
+
     while True:
 
-        event, values = window.read(timeout=wait)
-        start = time.time()
+        event, values = window.read(timeout=1)
+        # start = time.time()
 
         if area_selector.get():
             selected_key = last_key = area_selector.get()[0]
@@ -131,23 +135,28 @@ def main():
         else:
             cycles = 1
 
-        # viewer.draw_selected(viewer_graph, area_dict)
+        if values['viewer_enable']:
+            viewer.draw_selected(viewer_graph, area_dict)
+
         window['cropped'].update(data=area_dict()[selected_key].getPreview())  # --------
         window['digits'].update(get_digits())
         feed.draw_frame(graph, True)
         area_dict.update_xml('first_real_test.xml', default_unrecognized)
         draw_all()
 
-        wait = 33 - ((time.time() - start) * 1000)
+        wait = (time.time() - start) * 1000
         wait_list.append(wait)
         if len(wait_list) >= 15:
-            if mean(wait_list) > 0:
-                perf_text = f'Ahead by {round(mean(wait_list), 3)}ms'
-            else:
-                perf_text = f'Behind by {round((mean(wait_list)*-1), 3)}ms, skipping wait'
-                wait = 1
+            perf_text = f'{round(mean(wait_list), 3)}ms/frame'
+            wait_list.clear()
+
         window['performance_monitor'].update(perf_text)
 
+        if wait <= 33:
+            wait = 33 - wait
+        else:
+            wait = 0
+        start = time.time()
 
 if __name__ == '__main__':
     main()

@@ -56,7 +56,7 @@ def calc_seg(msk):
     return percent_white
 
 
-def get_digit(img, min_percentage=2.5, max_percentage=10):
+def get_digit(img, min_percentage=1.75, max_percentage=10):
     digit = [check_seg(img, 0, min_percentage, max_percentage), check_seg(img, 1, min_percentage, max_percentage),
              check_seg(img, 2, min_percentage, max_percentage), check_seg(img, 3, min_percentage, max_percentage),
              check_seg(img, 4, min_percentage, max_percentage), check_seg(img, 5, min_percentage, max_percentage),

@@ -1,6 +1,6 @@
 import cv2
 import PySimpleGUI as sg
-from ImageProcess import resize, process, rotate, hsv_process
+from ImageProcess import resize, process, rotate, hsvProcess, warpPerspective
 
 
 class Feed:
@@ -12,16 +12,17 @@ class Feed:
         self.h_vals = (0, 255)
         self.s_vals = (0, 255)
         self.v_vals = (0, 255)
-        self.config_input(feed_input)
-        self.config_crop(0, self.read().shape[0], 0, self.read().shape[1])
-        self.config_scale(desired_height, desired_width)
-        self.config_rot_hsv()
+        self.skip_warp = True
+        self.configInput(feed_input)
+        self.configCrop(0, self.read().shape[0], 0, self.read().shape[1])
+        self.configScale(desired_height, desired_width)
+        self.configRotHSV()
 
     def config_crop(self, x1, x2, y1, y2):
         print(f'Feed Crop X1: {x1}, X2: {x2}, Y1: {y1}, Y2: {y2}')
         self.crop = lambda img: img[x1:x2, y1:y2]
 
-    def config_rot_hsv(self, rot=0, h_vals=(0, 255), s_vals=(0, 255), v_vals=(0, 255)):
+    def configRotHSV(self, rot=0, h_vals=(0, 255), s_vals=(0, 255), v_vals=(0, 255)):
         self.rot = rot
         self.h_vals = h_vals
         self.s_vals = s_vals
@@ -52,7 +53,21 @@ class Feed:
 
         print(f'Resized to {self.width, self.height}')
 
-    def config_input(self, feed_input):
+    def configWarp(self, coords, dims):
+        self.warp_coords = ((int(coords[0][0] / self.scale), int(coords[0][1] / self.scale)),
+                            (int(coords[1][0] / self.scale), int(coords[1][1] / self.scale)),
+                            (int(coords[2][0] / self.scale), int(coords[2][1] / self.scale)),
+                            (int(coords[3][0] / self.scale), int(coords[3][1] / self.scale)))
+        print(f'Orignial Size: {self.read().shape[1], self.read().shape[0]}\n'
+              f'Adjusted Coords: {self.warp_coords}\n'
+              f'Current Size: {self.width, self.height}\n'
+              f'Current Warp Coords: {coords}\n'
+              f'Current Scale: {self.scale}')
+        self.scale = 1
+        self.warp_dims = dims
+        self.skip_warp = False
+
+    def configInput(self, feed_input):
         self.feed_input = feed_input
         print(f'Feed Input: {self.feed_input}')
         if type(feed_input) == int or feed_input.endswith('.mp4'):
@@ -62,7 +77,7 @@ class Feed:
             self.is_video = False
             self.img = cv2.imread(feed_input)
 
-    def get_frame(self, raw=False):
+    def getFrame(self, raw=False):
         read = self.read()
 
         self.height = read.shape[0]
@@ -71,23 +86,14 @@ class Feed:
         dims = self.width, self.height
         read = rotate(read, self.rot)
         read = resize(read, (dims[0] * self.scale, dims[1] * self.scale))
-        read = self.crop(read)
 
-        if self.resize_for_crop:
-            while read.shape[0] * self.crop_scale < 600 and read.shape[1] * self.crop_scale < 800:
-                self.crop_scale += 0.125
-                # print(f'Resizing: {read.shape[0]*self.crop_scale, read.shape[1]*self.crop_scale}')
-
-            if self.crop_scale != 1:
-                self.crop_scale -= 0.125
-                self.crop_height = int(read.shape[0] * self.crop_scale)
-                self.crop_width = int(read.shape[1] * self.crop_scale)
-                read = resize(read, (self.crop_width, self.crop_height))
+        if not self.skip_warp:
+            read = warpPerspective(read, self.warp_coords, self.warp_dims)[0]
 
         if not raw:
-            read = hsv_process(read, h_min=self.h_vals[0], h_max=self.h_vals[1],
-                               s_min=self.s_vals[0], s_max=self.s_vals[1],
-                               v_min=self.v_vals[0], v_max=self.v_vals[1])
+            read = hsvProcess(read, h_min=self.h_vals[0], h_max=self.h_vals[1],
+                              s_min=self.s_vals[0], s_max=self.s_vals[1],
+                              v_min=self.v_vals[0], v_max=self.v_vals[1])
 
         frame = read, cv2.imencode('.png', read)[1].tobytes()
         return frame
@@ -99,6 +105,6 @@ class Feed:
             read = self.img
         return read
 
-    def draw_frame(self, graph: sg.Graph, raw=False):
+    def drawFrame(self, graph: sg.Graph, raw=False):
         graph.erase()
         graph.draw_image(data=self.get_frame(raw)[1], location=(0, 0))

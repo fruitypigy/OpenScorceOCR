@@ -52,3 +52,20 @@ def process(img, h_min=0, h_max=255, s_min=0, s_max=255, v_min=0, v_max=255, sca
     merged = cv2.merge((resized, resized, resized))
 
     return merged
+
+def warpPerspective(img, coords, dims=(600,300)):
+    if type(coords) != list:
+        coords = list(coords)
+
+    width, height = dims
+
+    pts1 = np.float32(coords)
+    pts2 = np.float32([[0,0], [width, 0], [0,height], [width, height]])
+
+    matrix = cv2.getPerspectiveTransform(pts1, pts2)
+
+    transformed = cv2.warpPerspective(img, matrix, (width, height))
+
+    transformed_encoded = cv2.imencode('.png', transformed)[1].tobytes()
+
+    return transformed, transformed_encoded

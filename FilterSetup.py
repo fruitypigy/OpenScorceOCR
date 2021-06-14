@@ -1,107 +1,174 @@
-from ImageProcess import hsv_process, resize
+from ImageProcess import hsvProcess, resize, warpPerspective
 import PySimpleGUI as sg
 import cv2
 from Feed import Feed
 
+
 def filterSetup(feed: Feed):
+    # def filterSetup():
+    slider_elements = [sg.Text('Hue Min', size=(7, 1)),
+                       sg.Slider((0, 255), 0, orientation='vertical', key='HUE_MN', enable_events=True),
+                       sg.Text('Hue Max', size=(7, 1)),
+                       sg.Slider((0, 255), 255, orientation='vertical', key='HUE_MX', enable_events=True)], \
+                      [sg.Text('Sat Min', size=(7, 1)),
+                       sg.Slider((0, 255), 0, orientation='vertical', key='SAT_MN', enable_events=True),
+                       sg.Text('Sat Max', size=(7, 1)),
+                       sg.Slider((0, 255), 255, orientation='vertical', key='SAT_MX', enable_events=True)], \
+                      [sg.Text('Val Min', size=(7, 1)),
+                       sg.Slider((0, 255), 0, orientation='vertical', key='VAL_MN', enable_events=True),
+                       sg.Text('Val Max', size=(7, 1)),
+                       sg.Slider((0, 255), 255, orientation='vertical', key='VAL_MX', enable_events=True)], \
+                      [sg.Text('Rotation'), sg.Spin((list(range(-179, 180))), 0, key='ROT', size=(4, 4))], \
+                      [sg.Checkbox('Apply HSV Filter', key='apply_hsv')]
 
-    slider_elements = [sg.Text('Hue Min', size=(7,1)), sg.Slider((0, 255), 0, orientation='vertical', key='HUE_MN', enable_events=True),
-                    sg.Text('Hue Max', size=(7,1)), sg.Slider((0, 255), 255, orientation='vertical', key='HUE_MX', enable_events=True)],[
-                    sg.Text('Sat Min', size=(7,1)), sg.Slider((0, 255), 0, orientation='vertical', key='SAT_MN', enable_events=True),
-                    sg.Text('Sat Max', size=(7,1)), sg.Slider((0, 255), 255, orientation='vertical', key='SAT_MX', enable_events=True)],[
-                    sg.Text('Val Min', size=(7,1)), sg.Slider((0, 255), 0, orientation='vertical', key='VAL_MN', enable_events=True),
-                    sg.Text('Val Max', size=(7,1)), sg.Slider((0, 255), 255, orientation='vertical', key='VAL_MX', enable_events=True)],[
-                    sg.Text('Rotation'), sg.Spin((list(range(-179, 180))), 0, key='ROT', size=(4, 4))],[
-                        sg.Checkbox('Apply HSV Filter', key='apply_hsv')]
+    input_elements = [sg.Text('Width'),
+                      sg.Spin((list(range(100, 800))), 600, size=(6, 4), key='width', enable_events=True),
+                      sg.Text('Height'),
+                      sg.Spin((list(range(100, 800))), 300, size=(6, 4), key='height', enable_events=True)]
 
-    spin_element = sg.Text('Number of Digits'), sg.Spin([i for i in range(1,19)], 1, size=(3,2), key=('segment_number'))
+    spin_element = sg.Text('Number of Digits'), sg.Spin([i for i in range(1, 19)], 1, size=(3, 2), key='segment_number')
 
-    input_graph_element = sg.Graph(canvas_size=(feed.width, feed.height), graph_bottom_left=(0, feed.height), 
-                                graph_top_right=(feed.width, 0), enable_events=True, drag_submits=True,
-                                key="graph", background_color='green')
-    
-    preview_element = [sg.Text('Preview')], [sg.Graph((400, 300), (0, 300), (400, 0), background_color='grey', key='preview')]
+    point_selector = [sg.Radio('Point 1', 'point_sel', key='point1', default=True),
+                      sg.Radio('Point 2', 'point_sel', key='point2'),
+                      sg.Radio('Point 3', 'point_sel', key='point3'),
+                      sg.Radio('Point 4', 'point_sel', key='point4')]
 
-    setup_layout = [[input_graph_element, sg.Column(slider_elements), sg.Column(preview_element)], [sg.Button('Confirm'), sg.Button('Quit'), spin_element]]
+    input_graph_element = sg.Graph(canvas_size=(feed.width, feed.height), graph_bottom_left=(0, feed.height),
+                                   graph_top_right=(feed.width, 0), enable_events=True, drag_submits=True,
+                                   key="graph", background_color='green')
 
-    setup_window = sg.Window('Setup', setup_layout)
+    preview_element = [sg.Text('Preview')], [
+        sg.Graph((600, 400), (0, 400), (600, 0), background_color='grey', key='preview')]
 
-    graph = setup_window['graph'] # type: sg.Graph
-    preview = setup_window['preview'] # type: sg.Graph
+    setup_layout = [[input_graph_element,
+                     sg.Column(slider_elements),
+                     sg.Column(preview_element)],
+                    point_selector, input_elements,
+                    [sg.Button('Confirm'),
+                     sg.Button('Quit'), spin_element]]
+    # setup_layout = [[sg.Column(slider_elements), sg.Column(preview_element)], [sg.Button('Confirm'), sg.Button('Quit'), spin_element]]
+
+    setup_window = sg.Window('Setup', setup_layout, return_keyboard_events=True)
+
+    graph = setup_window['graph']  # type: sg.Graph
+    preview = setup_window['preview']  # type: sg.Graph
 
     hsv_vals = (0, 255, 0, 255, 0, 255)
-    
+
     dragging = False
 
-    dims = (feed.width, feed.height)
-    start_point = endpoint = (-1,-1)
-    crop_vals = getCrop((1,1),(dims[0], dims[1]),dims)
+    # dims = (feed.width, feed.height)
+    startpoint = endpoint = (-1, -1)
+    # crop_vals = getCrop((1,1),(dims[0], dims[1]),dims)
+
+    coords = []
+    adj_coords = [(), (), (), ()]
+    warped = feed.getFrame(True)[0]
+    warped_encoded = None
+    skip_warp = False
+    saved_coords = None
 
     while True:
         event, values = setup_window.read(timeout=100)
-        
-        hsv_vals = (values['HUE_MN'], values['HUE_MX'], 
-                    values['SAT_MN'], values['SAT_MX'], 
+        graph.erase()
+        preview.erase()
+        graph.draw_image(data=feed.getFrame(True)[1], location=(0, 0))
+
+        height = int(values['height'])
+        width = int(values['width'])
+
+        hsv_vals = (values['HUE_MN'], values['HUE_MX'],
+                    values['SAT_MN'], values['SAT_MX'],
                     values['VAL_MN'], values['VAL_MX'],)
         rot_input = values['ROT']
-        if type(rot_input) == int and rot_input < 180 and rot_input > -180: 
+        if type(rot_input) == int and 180 > rot_input > -180:
             rot = rot_input
         else:
             rot = 0
-        feed.config_rot_hsv(rot)
-        feed.draw_frame(graph, True)
+        feed.configRotHSV(rot)
+        # feed.drawFrame(graph, True)
         apply_hsv = values['apply_hsv']
-        if event == None or event == 'Quit':
+        if event is None or event == 'Quit':
             exit()
         elif event == 'Confirm':
             feed = Feed(feed.feed_input, desired_height=600, desired_width=600)
             print(feed.feed_input)
-            feed.config_rot_hsv(rot, (hsv_vals[0], hsv_vals[1]),
-                                (hsv_vals[2], hsv_vals[3]),
-                                (hsv_vals[4], hsv_vals[5]))
-            feed.config_crop(crop_vals[2], crop_vals[3],
-                             crop_vals[0], crop_vals[1])
+            feed.configRotHSV(rot, (hsv_vals[0], hsv_vals[1]),
+                              (hsv_vals[2], hsv_vals[3]),
+                              (hsv_vals[4], hsv_vals[5]))
+
+            print(saved_coords)
+            feed.configWarp(coords, (width, height))
+            feed.getFrame()
+            # feed.configCrop(crop_vals[2], crop_vals[3],
+            #                 crop_vals[0], crop_vals[1])
             # feed.configScale(desired_height=400, desired_width=400)
             setup_window.close()
-            
+
             return feed, values['segment_number']
+            pass
+        elif event.endswith('+UP'):
+            if len(coords) > 3:
+                coords.clear()
+            coords.append(values['graph'])
+            print(f'Added: {coords}')
+            warped_encoded = None
+            skip_warp = False
+        elif len(coords) == 4 and ((not skip_warp) or
+                                   (event == 'width' or
+                                    event == 'height') or
+                                   event in ['w', 'a', 's', 'd']):
 
-        elif event == 'graph' or event.endswith('+UP'):
-            # print(event, values)
-            # print(f'Startpoint: {start_point}, Endpoint: {endpoint}, Dim {dims}')
-            coords = values['graph']
-            if event.endswith('+UP'):
-                endpoint = coords
-                dragging = False
-            elif dragging:
-                endpoint = coords
-            else:
-                start_point = coords
-                dragging = True
+            if event in ['w', 'a', 's', 'd']:
+                point_count = 0
+                for point in ['point1', 'point2', 'point3', 'point4']:
+                    if values[point]:
+                        print(f'Point: {point}')
+                        break
+                    point_count += 1
+                point = coords[point_count]
+                if event == 'w':
+                    point = point[0], point[1] - 1
+                if event == 'a':
+                    point = point[0] - 1, point[1]
+                if event == 's':
+                    point = point[0], point[1] + 1
+                if event == 'd':
+                    point = point[0] + 1, point[1]
+                coords[point_count] = point
+                print(f'Adjusted: {coords}')
+            warped, warped_encoded = warpPerspective(feed.getFrame(True)[0], coords, dims=(width, height))
+            skip_warp = True
 
-        if start_point != endpoint and not dragging:
-            crop_vals = getCrop(start_point, endpoint, dims)
-        img, location, scale = processFeed(feed, hsv_vals, crop_vals, apply_hsv)
-        # setup_window['preview'].update(data=img)
-        preview.erase()
-        preview.draw_image(data=img, location=location)
-        graph.draw_rectangle(start_point, endpoint, line_color='white', line_width=3)
+        # elif len(coords) == 4 and event in ['w', 'a', 's', 'd']:
+        #     point_count = 0
+        #
+        #     print(f'Adjusted: {adj_coords}')
+        #     warped, warped_encoded = warpPerspective(feed.getFrame(True)[0], adj_coords, dims=(width, height))
+
+        # print(f'Length of Coords: {len(coords)}, Skip Warp: {skip_warp}')
+        location = center((warped.shape[1], warped.shape[0]))
+
+        if apply_hsv:
+            frame = processFeed(warped, hsv_vals)
+        else:
+            frame = cv2.imencode('.png', warped)[1].tobytes()
+
+        preview.draw_image(data=frame, location=location)
+        graph = drawPoints(graph, coords)
 
 
-def processFeed(feed: Feed, hsv_vals, crop_vals, apply_hsv):
-    frame = feed.get_frame(True)[0]
-    
-    x1, x2, y1, y2 = crop_vals
-    # print(f'Crop: x1: {x1}, x2: {x2}, y1: {y1}, y2: {y2}')
-    if apply_hsv:
-        frame = hsv_process(frame, hsv_vals[0], hsv_vals[1], hsv_vals[2],
-                            hsv_vals[3], hsv_vals[4], hsv_vals[5])
-    frame = frame[y1:y2, x1:x2]
-    frame, scale = scaleFrame(frame)
+def drawPoints(graph: sg.Graph, points: list[tuple]):
+    for point in points:
+        graph.draw_circle(point, 3, fill_color='red')
+    return graph
 
-    location = center((frame.shape[1], frame.shape[0]))
 
-    return cv2.imencode('.png', frame)[1].tobytes(), location, scale
+def processFeed(img, hsv_vals):
+    frame = hsvProcess(img, hsv_vals[0], hsv_vals[1], hsv_vals[2],
+                       hsv_vals[3], hsv_vals[4], hsv_vals[5])
+    return cv2.imencode('.png', frame)[1].tobytes()
+
 
 def scaleFrame(img, desired_height=400, desired_width=300):
     height = img.shape[0]
@@ -111,7 +178,7 @@ def scaleFrame(img, desired_height=400, desired_width=300):
     resized = False
 
     # print(f'Input Resolution: {width, height}')
-    while height*scale > desired_height and width*scale > desired_width:
+    while height * scale > desired_height and width * scale > desired_width:
         # print(f'Resizing Down: {scale}, {int(width*scale), int(height*scale)}')
         resized = True
         scale -= 0.1
@@ -121,30 +188,15 @@ def scaleFrame(img, desired_height=400, desired_width=300):
     #     print(f'Resizing Up: {scale}, {int(width*scale), int(height*scale)}')
     #     scale += 0.1
 
-    height = int(height * scale-0.1)
-    width = int(width * scale-0.1)
-    
+    height = int(height * scale - 0.1)
+    width = int(width * scale - 0.1)
+
     # print(f'Resized to {width, height} with scale {scale}')
 
     return resize(img, (width, height)), scale
 
-def getCrop(startpoint=(1,1), endpoint=(384, 288), dims=(-1,-1)):
-    x1, y1 = startpoint
-    x2, y2 = endpoint
 
-    if x2 < 0 or y2 < 0 or x2 > dims[0] or y2 > dims[1]:
-        x1, y1 = 0, 0
-        x2, y2 = dims[0], dims[1]
-    else:
-        if x1 > x2:
-            x1, x2 = x2, x1
-        if y1 > y2:
-            y1, y2 = y2, y1
-            # exit()
-    
-    return x1, x2, y1, y2
-
-def center(input_dim, preview_dim=(400, 300)):
+def center(input_dim, preview_dim=(600, 400)):
     # print(input_dim)
     hor_dif = preview_dim[0] - input_dim[0]
     vert_dif = preview_dim[1] - input_dim[1]
@@ -152,16 +204,18 @@ def center(input_dim, preview_dim=(400, 300)):
         hor_dif = 0
     elif vert_dif < -1:
         vert_dif = 0
-    location = int(0.5*hor_dif), int(0.5*vert_dif)
+    location = int(0.5 * hor_dif), int(0.5 * vert_dif)
     # print(location)
     return location
 
 
 if __name__ == '__main__':
+    pass
     # center((200, 150))
 
     # feed = Feed(0, 300, 400)
     # filterSetup(feed)
-    
-    feed, number = filterSetup(Feed('Tests\RealTwo.jpg', 600, 600))
-    print(number)
+
+    filterSetup(Feed('TestInputs\WarpTest2.jpg', 600, 600))
+    # print(number)
+    # filterSetup()

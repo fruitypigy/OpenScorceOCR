@@ -119,10 +119,11 @@ def main():
             area_dict()[selected_key].processArea(feed.get_frame()[0])
             area_selector.update(list(area_dict().keys()))
 
-        # elif (event == 'Remove Last' or (graph_focused and event == 'R')) and len(area_dict.area_dict) > 1:
-        #     area_dict.remove(area_dict.name_list[-1])
-        #     area_selector.update(area_dict.name_list)
-        #     area_dict.selected = len(area_dict.area_dict) - 1
+        elif (event == 'Remove Last' or (graph_focused and event == 'R')) and len(area_dict.area_dict) > 1:
+            area_dict.remove(list(area_dict().keys())[-1])
+            area_selector.update(list(area_dict().keys()))
+            area_dict.selected = len(area_dict.area_dict) - 1
+            selected_key = last_key = list(area_dict().keys())[-1]
 
         elif event == 'graph':
             graph_focused = True

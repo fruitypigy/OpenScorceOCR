@@ -44,27 +44,15 @@ def filterSetup(feed: Feed):
                      sg.Column(slider_elements),
                      sg.Column(preview_element)],
                     point_selector, input_elements,
-                    [sg.Button('Confirm'),
+                    [sg.Button('Confirm', disabled=True),
                      sg.Button('Quit'), spin_element]]
-    # setup_layout = [[sg.Column(slider_elements), sg.Column(preview_element)], [sg.Button('Confirm'), sg.Button('Quit'), spin_element]]
-
     setup_window = sg.Window('Setup', setup_layout, return_keyboard_events=True)
 
     graph = setup_window['graph']  # type: sg.Graph
     preview = setup_window['preview']  # type: sg.Graph
 
-    hsv_vals = (0, 255, 0, 255, 0, 255)
-
-    dragging = False
-
-    # dims = (feed.width, feed.height)
-    startpoint = endpoint = (-1, -1)
-    # crop_vals = getCrop((1,1),(dims[0], dims[1]),dims)
-
     coords = []
-    adj_coords = [(), (), (), ()]
     warped = feed.get_frame(True)[0]
-    warped_encoded = None
     skip_warp = False
     saved_coords = None
 
@@ -86,10 +74,9 @@ def filterSetup(feed: Feed):
         else:
             rot = 0
         feed.configRotHSV(rot)
-        # feed.draw_frame(graph, True)
         apply_hsv = values['apply_hsv']
         if event is None or event == 'Quit':
-            exit()
+            exit(0)
         elif event == 'Confirm':
             feed = Feed(feed.feed_input, desired_height=600, desired_width=600)
             print(feed.feed_input)
@@ -100,9 +87,6 @@ def filterSetup(feed: Feed):
             print(saved_coords)
             feed.configWarp(coords, (width, height))
             feed.get_frame()
-            # feed.configCrop(crop_vals[2], crop_vals[3],
-            #                 crop_vals[0], crop_vals[1])
-            # feed.configScale(desired_height=400, desired_width=400)
             setup_window.close()
 
             return feed, values['segment_number']
@@ -112,12 +96,12 @@ def filterSetup(feed: Feed):
                 coords.clear()
             coords.append(values['graph'])
             print(f'Added: {coords}')
-            warped_encoded = None
             skip_warp = False
         elif len(coords) == 4 and ((not skip_warp) or
                                    (event == 'width' or
                                     event == 'height') or
                                    event in ['w', 'a', 's', 'd']):
+            setup_window['Confirm'].update(disabled=False)
 
             if event in ['w', 'a', 's', 'd']:
                 point_count = 0
@@ -139,14 +123,6 @@ def filterSetup(feed: Feed):
                 print(f'Adjusted: {coords}')
             warped, warped_encoded = warpPerspective(feed.get_frame(True)[0], coords, dims=(width, height))
             skip_warp = True
-
-        # elif len(coords) == 4 and event in ['w', 'a', 's', 'd']:
-        #     point_count = 0
-        #
-        #     print(f'Adjusted: {adj_coords}')
-        #     warped, warped_encoded = warpPerspective(feed.get_frame(True)[0], adj_coords, dims=(width, height))
-
-        # print(f'Length of Coords: {len(coords)}, Skip Warp: {skip_warp}')
         location = center((warped.shape[1], warped.shape[0]))
 
         if apply_hsv:
@@ -175,12 +151,7 @@ def scaleFrame(img, desired_height=400, desired_width=300):
     width = img.shape[1]
 
     scale = 1
-    resized = False
-
-    # print(f'Input Resolution: {width, height}')
     while height * scale > desired_height and width * scale > desired_width:
-        # print(f'Resizing Down: {scale}, {int(width*scale), int(height*scale)}')
-        resized = True
         scale -= 0.1
 
     # TODO Fix scale up

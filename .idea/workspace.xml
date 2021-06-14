@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="4768fb64-1c48-4f2c-ad18-9b1cfdd4e4b1" name="Default Changelist" comment="Updated example image">
+    <list default="true" id="4768fb64-1c48-4f2c-ad18-9b1cfdd4e4b1" name="Default Changelist" comment="Re-added remove last">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FilterSetup.py" beforeDir="false" afterPath="$PROJECT_DIR$/FilterSetup.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/InputSetup.py" beforeDir="false" afterPath="$PROJECT_DIR$/InputSetup.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/first_real_test.xml" beforeDir="false" afterPath="$PROJECT_DIR$/first_real_test.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -105,7 +107,21 @@
       <option name="project" value="LOCAL" />
       <updated>1623689604611</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Added output browse">
+      <created>1623691065489</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1623691065489</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Re-added remove last">
+      <created>1623691701007</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1623691701007</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -125,6 +141,8 @@
     <MESSAGE value="Finish merge with WarpTest" />
     <MESSAGE value="Cleaning" />
     <MESSAGE value="Updated example image" />
-    <option name="LAST_COMMIT_MESSAGE" value="Updated example image" />
+    <MESSAGE value="Added output browse" />
+    <MESSAGE value="Re-added remove last" />
+    <option name="LAST_COMMIT_MESSAGE" value="Re-added remove last" />
   </component>
 </project>

@@ -31,7 +31,7 @@ def inputSetup():
         event, values = window.read(50)
 
         if event == None or event == 'Quit':
-            exit()
+            exit(0)
         elif (event == 'input' or event == 'output') and (values['input']):
             if values['output']:
                 window['OK'].update(disabled=False)

@@ -103,7 +103,7 @@ def main():
             selected_key = last_key
         input_name = values['area_name']
         if event is None or event == 'Quit':
-            break
+            exit(0)
         elif event == 'area_name':
             graph_focused = False
         elif event == 'area_selector':

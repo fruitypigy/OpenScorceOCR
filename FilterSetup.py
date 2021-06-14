@@ -1,4 +1,4 @@
-from ImageProcess import hsvProcess, resize, warpPerspective
+from ImageProcess import hsv_process, resize, warpPerspective
 import PySimpleGUI as sg
 import cv2
 from Feed import Feed
@@ -63,7 +63,7 @@ def filterSetup(feed: Feed):
 
     coords = []
     adj_coords = [(), (), (), ()]
-    warped = feed.getFrame(True)[0]
+    warped = feed.get_frame(True)[0]
     warped_encoded = None
     skip_warp = False
     saved_coords = None
@@ -72,7 +72,7 @@ def filterSetup(feed: Feed):
         event, values = setup_window.read(timeout=100)
         graph.erase()
         preview.erase()
-        graph.draw_image(data=feed.getFrame(True)[1], location=(0, 0))
+        graph.draw_image(data=feed.get_frame(True)[1], location=(0, 0))
 
         height = int(values['height'])
         width = int(values['width'])
@@ -86,7 +86,7 @@ def filterSetup(feed: Feed):
         else:
             rot = 0
         feed.configRotHSV(rot)
-        # feed.drawFrame(graph, True)
+        # feed.draw_frame(graph, True)
         apply_hsv = values['apply_hsv']
         if event is None or event == 'Quit':
             exit()
@@ -99,7 +99,7 @@ def filterSetup(feed: Feed):
 
             print(saved_coords)
             feed.configWarp(coords, (width, height))
-            feed.getFrame()
+            feed.get_frame()
             # feed.configCrop(crop_vals[2], crop_vals[3],
             #                 crop_vals[0], crop_vals[1])
             # feed.configScale(desired_height=400, desired_width=400)
@@ -137,14 +137,14 @@ def filterSetup(feed: Feed):
                     point = point[0] + 1, point[1]
                 coords[point_count] = point
                 print(f'Adjusted: {coords}')
-            warped, warped_encoded = warpPerspective(feed.getFrame(True)[0], coords, dims=(width, height))
+            warped, warped_encoded = warpPerspective(feed.get_frame(True)[0], coords, dims=(width, height))
             skip_warp = True
 
         # elif len(coords) == 4 and event in ['w', 'a', 's', 'd']:
         #     point_count = 0
         #
         #     print(f'Adjusted: {adj_coords}')
-        #     warped, warped_encoded = warpPerspective(feed.getFrame(True)[0], adj_coords, dims=(width, height))
+        #     warped, warped_encoded = warpPerspective(feed.get_frame(True)[0], adj_coords, dims=(width, height))
 
         # print(f'Length of Coords: {len(coords)}, Skip Warp: {skip_warp}')
         location = center((warped.shape[1], warped.shape[0]))
@@ -165,7 +165,7 @@ def drawPoints(graph: sg.Graph, points: list[tuple]):
 
 
 def processFeed(img, hsv_vals):
-    frame = hsvProcess(img, hsv_vals[0], hsv_vals[1], hsv_vals[2],
+    frame = hsv_process(img, hsv_vals[0], hsv_vals[1], hsv_vals[2],
                        hsv_vals[3], hsv_vals[4], hsv_vals[5])
     return cv2.imencode('.png', frame)[1].tobytes()
 

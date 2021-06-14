@@ -16,7 +16,7 @@ def main():
     # sg.theme('DarkTanBlue')
     sg.theme('Dark2')
 
-    feed = inputSetup()
+    feed, filepath = inputSetup()
     # TODO Remove all references to area_number
     # TODO Combine all area lists into area_dict
     feed, area_number = filterSetup(feed)
@@ -143,7 +143,7 @@ def main():
         window['cropped'].update(data=area_dict()[selected_key].getPreview())  # --------
         window['digits'].update(get_digits())
         feed.draw_frame(graph, True)
-        area_dict.update_xml('first_real_test.xml', default_unrecognized)
+        area_dict.update_xml(filepath, default_unrecognized)
         draw_all()
 
         wait = (time.time() - start) * 1000

@@ -8,8 +8,10 @@ def inputSetup():
     sg.Spin(('None', '2'))
 
     # TODO Fix crash on close with out selecting image
-    browse_element = sg.Column([[sg.Text('Image Input')], 
-                                [sg.FileBrowse(target='input', file_types=(('jpg', '.jpg'), ('png', '.png'), ('mp4', '.mp4')))]])
+    browse_element = sg.Column([[sg.Text('Image Input')],
+                                [sg.FileBrowse(target='input', file_types=(('jpg', '.jpg'), ('png', '.png'), ('mp4', '.mp4')))],
+                                [sg.Text('XML Output')],
+                                [sg.FileSaveAs(target='output', file_types=(('xml', '.xml'), ))]])
 
     camera_select_element = sg.Column(([[sg.Text('Camera Input')],
                                         [sg.Spin((0, 1, 2, 3), 'None', size=(6, 1), key='cam_select',
@@ -18,9 +20,10 @@ def inputSetup():
     preview_element = sg.Image(background_color='grey', size=(400, 400), key='preview')
 
     selected_element = sg.Input(key='input', size=(20, 1), readonly=True, enable_events=True)
+    output_element = sg.Input(key='output', size=(20,1), readonly=True, enable_events=True)
 
     window = sg.Window('Setup', [[preview_element], [browse_element, camera_select_element], [HorizontalSeparator()],
-                                 [selected_element, sg.OK(disabled=True, key='OK'), sg.Quit()]])
+                                 [selected_element, output_element, sg.OK(disabled=True, key='OK'), sg.Quit()]])
 
     feed = None
 
@@ -29,8 +32,9 @@ def inputSetup():
 
         if event == None or event == 'Quit':
             exit()
-        elif event == 'input' and values['input']:
-            window['OK'].update(disabled=False)
+        elif (event == 'input' or event == 'output') and (values['input']):
+            if values['output']:
+                window['OK'].update(disabled=False)
             feed = Feed(values['input'])
         elif event == 'cam_select':
             if values['cam_select'] != 'None':
@@ -40,7 +44,7 @@ def inputSetup():
         elif event == 'OK':
             window.close()
             feed = Feed(feed.feed_input)
-            return feed
+            return feed, values['output']
         elif feed:
             window['preview'].update(data=feed.get_frame(True)[1])
 

@@ -30,7 +30,7 @@ def main():
 
     graph_right_click = [[''], ['Add Digit', 'Remove Last']]
 
-    graph_element = sg.Graph((feed.crop_width, feed.crop_height), (0, feed.crop_height), (feed.crop_width, 0), pad=(10,10), 
+    graph_element = sg.Graph((feed.warp_dims[0], feed.warp_dims[1]), (0, feed.warp_dims[1]), (feed.warp_dims[0], 0), pad=(10,10),
                         enable_events=True, key='graph', drag_submits=True, background_color='black', right_click_menu=graph_right_click)
     viewer_graph_element = sg.Graph((480, 390), (0, 390), (480, 0), pad=(10,10), 
                         enable_events=True, key='viewer', drag_submits=True, background_color='grey')

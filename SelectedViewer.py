@@ -23,10 +23,10 @@ class SelectedViewer:
                     break
                 top_left = (10 + row * 70, 10 + column * 130)
                 text_pos = (10 + row * 70, 125 + column * 130)
-                digit, update = list(area_dict().values())[drawn_images].getDigit()
+                digit, update = list(area_dict().values())[drawn_images].get_digit()
                 if update:
                     graph.draw_text(f'{digit} [X]', location=text_pos, text_location=TEXT_LOCATION_BOTTOM_LEFT)
                 else:
                     graph.draw_text(f'{digit} [ ]', location=text_pos, text_location=TEXT_LOCATION_BOTTOM_LEFT)
-                graph.draw_image(data=list(area_dict().values())[drawn_images].getProcessed(), location=top_left)
+                graph.draw_image(data=list(area_dict().values())[drawn_images].get_processed(), location=top_left)
                 drawn_images += 1

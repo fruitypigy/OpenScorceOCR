@@ -27,7 +27,7 @@ def main():
 
     area_dict = AreaDict(area_number)
     for key in area_dict().keys():
-        area_dict()[key].processArea(feed.get_frame()[0])
+        area_dict()[key].process_area(feed.get_frame()[0])
 
     viewer = sv()
 
@@ -66,16 +66,16 @@ def main():
         for key in area_dict().keys():
             next_area = area_dict()[key]
             if key == selected_key and graph_focused:
-                next_area.adjustRectangle(graph, event, values, True)
+                next_area.adjust_rectangle(graph, event, values, True)
             elif key == selected_key and not graph_focused:
-                next_area.adjustRectangle(graph, is_main=True)
+                next_area.adjust_rectangle(graph, is_main=True)
             else:
-                next_area.adjustRectangle(graph)
+                next_area.adjust_rectangle(graph)
 
     def get_digits():
         digit_list = []
         for key in area_dict().keys():
-            digit_list.append(area_dict()[key].getDigit()[0])
+            digit_list.append(area_dict()[key].get_digit()[0])
         return digit_list
 
     viewer.draw_selected(viewer_graph, area_dict)
@@ -116,7 +116,7 @@ def main():
             graph.set_focus()
         elif event == 'Add Digit' or (graph_focused and event == 'r'):
             selected_key = last_key = area_dict.add()
-            area_dict()[selected_key].processArea(feed.get_frame()[0])
+            area_dict()[selected_key].process_area(feed.get_frame()[0])
             area_selector.update(list(area_dict().keys()))
 
         elif (event == 'Remove Last' or (graph_focused and event == 'R')) and len(area_dict.area_dict) > 1:
@@ -128,12 +128,12 @@ def main():
         elif event == 'graph':
             graph_focused = True
             graph.set_focus()
-            encoded, guessed = area_dict()[selected_key].processArea(feed.get_frame()[0], skip_digit=True)
+            encoded, guessed = area_dict()[selected_key].process_area(feed.get_frame()[0], skip_digit=True)
             # print(guessed)
             window['cropped'].update(data=encoded)
             cycles = 1
         elif cycles <= len(area_dict()):
-            list(area_dict().values())[cycles - 1].processArea(feed.get_frame()[0])
+            list(area_dict().values())[cycles - 1].process_area(feed.get_frame()[0])
             cycles += 1
         else:
             cycles = 1
@@ -141,7 +141,7 @@ def main():
         if values['viewer_enable']:
             viewer.draw_selected(viewer_graph, area_dict)
 
-        window['cropped'].update(data=area_dict()[selected_key].getPreview())  # --------
+        window['cropped'].update(data=area_dict()[selected_key].get_preview())  # --------
         window['digits'].update(get_digits())
         feed.draw_frame(graph, True)
         area_dict.update_xml(filepath, default_unrecognized)

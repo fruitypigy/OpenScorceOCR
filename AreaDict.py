@@ -66,7 +66,7 @@ class AreaDict:
     def update_xml(self, filename: str, unrecognized=0):
         xml = '<?xml version="1.0"?>\n<root>'
         for key in self.area_dict.keys():
-            val = self.area_dict[key].getDigit(unrecognized)[0]
+            val = self.area_dict[key].get_digit(unrecognized)[0]
             xml += f'\n\t<{key}>{val}</{key}>'
         # TODO Check for duplicate names after scrubbing
         xml += '\n</root>'

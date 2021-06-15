@@ -20,7 +20,7 @@ class SelectedArea:
         self.coords = []
         self.update = False
 
-    def adjustRectangle(self, graph: sg.Graph, event=None, values=None, is_main=False):
+    def adjust_rectangle(self, graph: sg.Graph, event=None, values=None, is_main=False):
         self.initiated = True
         if is_main:
             line_color = 'red3'
@@ -63,7 +63,7 @@ class SelectedArea:
 
         # return graph
 
-    def getCrop(self, frame):
+    def get_crop(self, frame):
         # TODO Fix crash when selecting area outside of graph
         self.coords = [self.bottom_right[1], self.top_left[1],
                        self.top_left[0], self.bottom_right[0]]
@@ -76,8 +76,8 @@ class SelectedArea:
         encoded = cv2.imencode('.png', frame)[1].tobytes()
         return encoded, frame
 
-    def processArea(self, frame, skip_digit=False):
-        self.cropped = self.getCrop(frame)[1]
+    def process_area(self, frame, skip_digit=False):
+        self.cropped = self.get_crop(frame)[1]
         self.processed = ip.hsv_process(self.cropped, v_min=255)
         self.processed = ip.resize(self.processed, (60, 100))
 
@@ -87,16 +87,16 @@ class SelectedArea:
         self.update = not self.update
         return self.processed_encoded, self.guessed
 
-    def getProcessed(self):
+    def get_processed(self):
         return self.processed_encoded
 
-    def getPreview(self):
+    def get_preview(self):
         # TODO overlay segments on preview to make adjustments easier
         self.processed_preview = ip.resize(self.processed, (90, 150))
         self.encoded_preview = cv2.imencode('.png', self.processed_preview)[1].tobytes()
         return self.encoded_preview
 
-    def getDigit(self, unrecognized=-1):
+    def get_digit(self, unrecognized=-1):
         if self.guessed == -1:
             return unrecognized, self.update
         return self.guessed, self.update

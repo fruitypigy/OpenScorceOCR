@@ -1,23 +1,23 @@
 Features:
 
 -Feed
-    Perspective Warp option
+***    Perspective Warp option
 
 -GUI
-    Right Click to add Number
-        Duplicates last selected
-    Right Click to remove Number
+***    Right Click to add Number
+***        Duplicates last selected
+---    Right Click to remove selected Number
     Top menu
     Click on Number in SelectedViewer to edit Number-specific values
-    Overlay segments over number in Selected area preview
+///  Overlay segments over number in Selected area preview
 -SelectedArea
     Per-Number ImageProcess parameters
 
 -OpenCVMatch
-    Completely revamp digit recognition
+    Revamp digit recognition
 
 Offload all image processing from Feed to SelectedArea
-XML Output
+*** XML Output
 Save/Load project w/ pickel
 Possibly make GUI its own class
 MultiProcessing

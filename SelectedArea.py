@@ -1,7 +1,7 @@
 import cv2
 import ImageProcess as  ip
 import PySimpleGUI as sg
-from OpenCVMatch import get_digit
+from OpenCVMatch import get_digit, check_seg
 
 
 class SelectedArea:
@@ -19,6 +19,7 @@ class SelectedArea:
         self.guessed = -1
         self.coords = []
         self.update = False
+        self.overlayed = None
 
     def adjust_rectangle(self, graph: sg.Graph, event=None, values=None, is_main=False):
         self.initiated = True
@@ -93,7 +94,13 @@ class SelectedArea:
     def get_preview(self):
         # TODO overlay segments on preview to make adjustments easier
         self.processed_preview = ip.resize(self.processed, (90, 150))
-        self.encoded_preview = cv2.imencode('.png', self.processed_preview)[1].tobytes()
+        full_seg = ip.resize(cv2.imread('Segments/FullBlue.jpg'), (90, 150)) # cv2.merge((cv2.imread('Segments/FullBlue.jpg'), cv2.imread('Segments/FullBlue.jpg'),
+
+                             # cv2.imread('Segments/FullBlue.jpg')))
+        # processed_merged = cv2.merge((self.processed_preview, self.processed_preview, self.processed_preview))
+        self.overlayed = (cv2.addWeighted(self.processed_preview, 0.7, full_seg, 0.5, 0))
+        self.encoded_preview = cv2.imencode('.png', self.overlayed)[1].tobytes()
+
         return self.encoded_preview
 
     def get_digit(self, unrecognized=-1):

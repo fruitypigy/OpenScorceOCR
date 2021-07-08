@@ -1,38 +1,26 @@
-#!/usr/bin/env python
-"""
-Produces load on all available CPU cores
+from multiprocessing import Process, Lock, Value
+import time
 
-Updated with suggestion to prevent Zombie processes
-Linted for Python 3
-Source: 
-insaner @ https://danielflannery.ie/simulate-cpu-load-with-python/#comment-34130
-"""
-from multiprocessing import Pool
-from multiprocessing import cpu_count
-
-import signal
-
-stop_loop = 0
-
-
-def exit_chld(x, y):
-    global stop_loop
-    stop_loop = 1
-
-
-def f(x):
-    global stop_loop
-    while not stop_loop:
-        x*x
-
-
-signal.signal(signal.SIGINT, exit_chld)
+def continuous_update(number, lock):
+    while True:
+        time.sleep(0.01)
+        with lock:
+            number.value += 1
 
 if __name__ == '__main__':
-    processes = cpu_count()
-    print('-' * 20)
-    print('Running load on CPU(s)')
-    print('Utilizing %d cores' % processes)
-    print('-' * 20)
-    pool = Pool(processes)
-    pool.map(f, range(processes))
+    num = Value('i', 0)
+
+    lock = Lock()
+
+    procs = []
+    for p in range(0, 100):
+        procs.append(Process(target=continuous_update, args=(num, lock)))
+        procs[p].start()
+
+    while num.value < 10000:
+        print(num.value)
+
+    for p in procs:
+        p.join()
+
+    print(num.value)

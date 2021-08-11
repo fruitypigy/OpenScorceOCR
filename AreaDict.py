@@ -11,15 +11,29 @@ def remove_special(name: str):
     return scrubbed_name
 
 
+def get_linked_digits(linked_list: list[sa, str]):
+    linked_string = ''
+    for area in linked_list:
+        if type(area) == sa:
+            linked_string += str(area.get_digit()[0])
+        else:
+            linked_string += area
+    return linked_string
+
+
 class AreaDict:
 
     def __init__(self, area_number):
         self.area_dict = {'Digit1': sa()}  # type: dict[str, sa]
+        self.linked_dict = {}  # type: dict[str, lambda : ()]
         for areas in range(area_number - 1):
             self.add()
 
     def __call__(self):
         return self.area_dict
+
+    def linked(self):
+        return self.linked_dict
 
     def rename(self, original_key: str, new_key: str):
         if not new_key:
@@ -59,9 +73,27 @@ class AreaDict:
             old_area = list(self.area_dict.values())[-1]
             self.area_dict[key] = sa(old_area.pos, (old_area.length, old_area.height))
         else:
-            print(Exception(f"Cannot add '{key}': Key already exists in dict"))
+            print(Exception(f"Cannot add '{key}': Key already exists in area dict"))
 
         return key
+
+    def add_linked(self, linking_keys: list[str], key=''):
+        print(f'Linking keys: {linking_keys}')
+        if not key:
+            key = f'Digit{len(self.area_dict) + 1}'
+        else:
+            key = remove_special(key)
+        if key not in self.linked_dict.keys():
+            print(self.linked_dict.values())
+            linked_list = []
+            for link_string in linking_keys:
+                if link_string in self.area_dict.keys():
+                    linked_list.append(self.area_dict[link_string])
+                else:
+                    linked_list.append(link_string)
+            self.linked_dict[key] = lambda: get_linked_digits(linked_list)
+        else:
+            print(Exception(f"Cannot add '{key}: Key already exists in linked dict"))
 
     def update_xml(self, filename: str, unrecognized=0):
         xml = '<?xml version="1.0"?>\n<root>'
@@ -69,7 +101,11 @@ class AreaDict:
             val = self.area_dict[key].get_digit(unrecognized)[0]
             xml += f'\n\t<{key}>{val}</{key}>'
         # TODO Check for duplicate names after scrubbing
-        xml += '\n</root>'
+        if len(self.linked_dict):
+            for key in self.linked_dict.keys():
+                val = self.linked_dict[key]()
+                xml += f'\n\t<{key}>{val}</{key}>'
+            xml += '\n</root>'
 
         file = open(filename, 'w')
         file.write(xml)

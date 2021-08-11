@@ -1,14 +1,12 @@
 from statistics import mean
-
 import PySimpleGUI as sg
 from SelectedArea import SelectedArea as sa
 from SelectedViewer import SelectedViewer as sv
 from InputSetup import inputSetup
 from FilterSetup import filterSetup
 from AreaDict import AreaDict
+from LinkSetup import link_setup
 import time
-from xml.dom.minidom import parseString
-
 
 def main():
     # sg.theme('DarkTeal6')
@@ -18,7 +16,7 @@ def main():
 
     feed, filepath = inputSetup()
     # TODO Remove all references to area_number
-    # TODO Combine all area lists into area_dict
+    # TODO Combine all   lists into area_dict
     feed, area_number = filterSetup(feed)
     # feed.resize_for_crop = True
     feed.get_frame()
@@ -31,7 +29,7 @@ def main():
 
     viewer = sv()
 
-    graph_right_click = [[''], ['Add Digit', 'Remove Last']]
+    graph_right_click = [[''], ['Add Digit', 'Add Linked', 'Remove Last', 'Edit Values']]
 
     print(feed.width, feed.height)
 
@@ -48,18 +46,66 @@ def main():
     text_element = sg.Text('1, 2, 3, 4, 5, 6, 7, 8, 9, 10', (60, 2),
                            key='digits', text_color='White', background_color='grey')
 
-    selector_col = [[selector_element], [sg.Input(size=(15, 8), key='area_name', enable_events=True)],
-                    [sg.Image(key='cropped')]]
+    selector_col = [
+        [selector_element],
+        [sg.Input(size=(15, 8), key='area_name', enable_events=True)],
+        [sg.Image(key='cropped')]
+    ]
 
-    layout = [[sg.Column(selector_col, vertical_alignment='top'), sg.Column([[performance_element], [graph_element]]),
-               sg.Column([[viewer_graph_element], [sg.Check('Enable Viewer', key='viewer_enable')]])], [text_element, sg.Button('Quit')]]
+    main_layout = [
+        [
+            sg.Column(selector_col, vertical_alignment='top'),
+            sg.Column([[performance_element], [graph_element]]),
+            sg.Column([
+                [viewer_graph_element],
+                [sg.Check('Enable Viewer', key='viewer_enable')]
+            ])],
+        [text_element, sg.Button('Quit')
+         ]
+    ]
 
-    window = sg.Window('OpenScorce', layout, return_keyboard_events=True, finalize=True)
-    graph = window['graph']  # type: sg.Graph
-    area_selector = window['area_selector']  # type: sg.Listbox
-    viewer_graph = window['viewer']  # type: sg.Graph
+    # TODO: remove
+    editor_layout = [[sg.Image(None, size=(240, 400), background_color='Black', key='raw_digit'),
+                      sg.Image(None, size=(240, 400), background_color='Blue', key='processed_digit'),
+                      sg.Column([
+                          [
+                              sg.Text('Name'), sg.Input('Default', size=(20, 2))
+                          ],
+                          [
+                              sg.Column([
+                                  [sg.Text('\nMax')],
+                                  [sg.Text('Min')]
+                              ]),
+                              sg.Column([
+                                  [sg.Text('Hue     Sat       Val')],
+                                  [sg.Spin(list(range(0, 255)), size=(3, 2), key='hue_max'),
+                                   sg.Spin(list(range(0, 255)), size=(3, 2), key='hue_min'),
+                                   sg.Spin(list(range(0, 255)), size=(3, 2), key='sat_max')],
+                                  [sg.Spin(list(range(0, 255)), size=(3, 2), key='sat_min'),
+                                   sg.Spin(list(range(0, 255)), size=(3, 2), key='val_max'),
+                                   sg.Spin(list(range(0, 255)), size=(3, 2), key='val_min')],
+                              ])
+                          ],
+                          [
+                              sg.Checkbox('Show Overlay', key='show_overlay')
+                          ],
+                          [
+                              sg.Save(), sg.Cancel()
+                          ]
+                      ])
+                      ]]
+
+    main_window = sg.Window('OpenScorce', main_layout, return_keyboard_events=True, finalize=True)
+    editor_window = sg.Window('Editor', editor_layout)  # maybe finalize = True????? idk wtf it does lol
+
+    graph = main_window['graph']  # type: sg.Graph
+    area_selector = main_window['area_selector']  # type: sg.Listbox
+    viewer_graph = main_window['viewer']  # type: sg.Graph
 
     graph_focused = False
+
+    def edit_area(selected: sa):
+        pass
 
     def draw_all():
 
@@ -94,7 +140,7 @@ def main():
 
     while True:
 
-        event, values = window.read(timeout=1)
+        event, values = main_window.read(timeout=1)
         # start = time.time()
 
         if area_selector.get():
@@ -108,7 +154,7 @@ def main():
             graph_focused = False
         elif event == 'area_selector':
             graph_focused = True
-            window['area_name'].update(selected_key)
+            main_window['area_name'].update(selected_key)
         elif area_selector.get() and event == '\r' and input_name not in area_dict().keys():
             selected_key = last_key = area_dict.rename(selected_key, input_name)
             area_selector.update(list(area_dict().keys()))
@@ -118,19 +164,25 @@ def main():
             selected_key = last_key = area_dict.add()
             area_dict()[selected_key].process_area(feed.get_frame()[0])
             area_selector.update(list(area_dict().keys()))
-
+        elif event == 'Add Linked' or (graph_focused and event == 'r'):
+            new_link, new_link_name = link_setup(list(area_dict().keys()))
+            if new_link:
+                area_dict.add_linked(new_link, new_link_name)
         elif (event == 'Remove Last' or (graph_focused and event == 'R')) and len(area_dict.area_dict) > 1:
             area_dict.remove(list(area_dict().keys())[-1])
             area_selector.update(list(area_dict().keys()))
             area_dict.selected = len(area_dict.area_dict) - 1
             selected_key = last_key = list(area_dict().keys())[-1]
 
+        elif event == 'Edit Values':
+            pass
+
         elif event == 'graph':
             graph_focused = True
             graph.set_focus()
             encoded, guessed = area_dict()[selected_key].process_area(feed.get_frame()[0], skip_digit=True)
             # print(guessed)
-            window['cropped'].update(data=encoded)
+            main_window['cropped'].update(data=encoded)
             cycles = 1
         elif cycles <= len(area_dict()):
             list(area_dict().values())[cycles - 1].process_area(feed.get_frame()[0])
@@ -141,8 +193,8 @@ def main():
         if values['viewer_enable']:
             viewer.draw_selected(viewer_graph, area_dict)
 
-        window['cropped'].update(data=area_dict()[selected_key].get_preview())  # --------
-        window['digits'].update(get_digits())
+        main_window['cropped'].update(data=area_dict()[selected_key].get_preview())  # --------
+        main_window['digits'].update(get_digits())
         feed.draw_frame(graph, True)
         area_dict.update_xml(filepath, default_unrecognized)
         draw_all()
@@ -153,13 +205,14 @@ def main():
             perf_text = f'{round(mean(wait_list), 3)}ms/frame'
             wait_list.clear()
 
-        window['performance_monitor'].update(perf_text)
+        main_window['performance_monitor'].update(perf_text)
 
         if wait <= 33:
             wait = 33 - wait
         else:
             wait = 0
         start = time.time()
+
 
 if __name__ == '__main__':
     main()

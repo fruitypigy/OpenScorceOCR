@@ -17,9 +17,9 @@ class SelectedArea:
         self.initiated = False
         self.processed = None
         self.guessed = -1
-        self.coords = []
         self.update = False
         self.overlayed = None
+        self.hsv = ((0, 255), (0, 255), (0, 255))
 
     def adjust_rectangle(self, graph: sg.Graph, event=None, values=None, is_main=False):
         self.initiated = True
@@ -94,7 +94,8 @@ class SelectedArea:
     def get_preview(self):
         # TODO overlay segments on preview to make adjustments easier
         self.processed_preview = ip.resize(self.processed, (90, 150))
-        full_seg = ip.resize(cv2.imread('Segments/FullBlue.jpg'), (90, 150)) # cv2.merge((cv2.imread('Segments/FullBlue.jpg'), cv2.imread('Segments/FullBlue.jpg'),
+        full_seg = ip.resize(cv2.imread('Segments/FullBlue.jpg'), (90, 150))
+        # cv2.merge((cv2.imread('Segments/FullBlue.jpg'), cv2.imread('Segments/FullBlue.jpg'),
 
                              # cv2.imread('Segments/FullBlue.jpg')))
         # processed_merged = cv2.merge((self.processed_preview, self.processed_preview, self.processed_preview))
